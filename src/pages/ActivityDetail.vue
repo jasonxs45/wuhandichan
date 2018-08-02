@@ -111,7 +111,6 @@
                 </flexbox-item>
               </flexbox>
               <dl
-                v-if="usedActivity.NeedInfo"
                 v-for="(item, index) in extraInfos.participant"
                 :key="'participant-'+index"
                 class="userinfo-input-group"
@@ -122,13 +121,13 @@
                     v-model="extraInfos.participant[index].name"
                   />
                 </dd>
-                <dd class="input-wrapper">
+                <dd v-if="usedActivity.NeedTel" class="input-wrapper">
                   <XInput
                     :placeholder="`请输入参与者${index + 1}的电话`"
                     v-model="extraInfos.participant[index].tel"
                   />
                 </dd>
-                <dd class="input-wrapper">
+                <dd v-if="usedActivity.NeedInfo" class="input-wrapper">
                   <XInput
                     :placeholder="`请输入参与者${index + 1}的身份证号码`"
                     v-model="extraInfos.participant[index].id"
@@ -402,24 +401,22 @@ export default {
           return
         }
       }
-      if (this.usedActivity.NeedInfo) {
-        let check = this.extraInfos.participant.every((item, index) => {
-          if (!item.name.match(NAME_REG)) {
-            window.$alert(`请填写参与者${index + 1}正确格式的姓名`)
-            return item.name.match(NAME_REG)
-          }
-          if (!item.tel.match(TEL_REG)) {
-            window.$alert(`请填写参与者${index + 1}正确格式的电话号码`)
-            return item.tel.match(TEL_REG)
-          }
-          if (!ID_CHECK(item.id)) {
-            window.$alert(`请填写参与者${index + 1}正确的身份证号码`)
-            return ID_CHECK(item.id)
-          }
-          return true
-        })
-        if (!check) return
-      }
+      let check = this.extraInfos.participant.every((item, index) => {
+        if (!item.name.match(NAME_REG)) {
+          window.$alert(`请填写参与者${index + 1}正确格式的姓名`)
+          return item.name.match(NAME_REG)
+        }
+        if (this.usedActivity.NeedTel && !item.tel.match(TEL_REG)) {
+          window.$alert(`请填写参与者${index + 1}正确格式的电话号码`)
+          return item.tel.match(TEL_REG)
+        }
+        if (this.usedActivity.NeedInfo && !ID_CHECK(item.id)) {
+          window.$alert(`请填写参与者${index + 1}正确的身份证号码`)
+          return ID_CHECK(item.id)
+        }
+        return true
+      })
+      if (!check) return
       if (this.usedActivity.NeedAddr) {
         if (!this.extraInfos.consignee.name.match(NAME_REG)) {
           window.$alert(`请填写正确的收货人姓名`)
