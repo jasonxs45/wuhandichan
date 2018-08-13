@@ -60,6 +60,7 @@ export default {
     if (!this.$children) return
     this.childLength = this.$children.length
     this.$children.forEach((item, i) => {
+      this.$children[i].$off('on-change', this.changeHandler)
       this.$children[i].$on('on-change', this.changeHandler)
     })
   },

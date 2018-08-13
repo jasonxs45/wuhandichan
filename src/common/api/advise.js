@@ -68,9 +68,12 @@ let advise = {
       }
       return api.globalQuery(opt)
     },
-    getJudge () {
+    getJudge (PID = 0) {
       let opt = {
-        'Act': 'SuggestGetNature'
+        'Act': 'SuggestGetNature',
+        Data: JSON.stringify({
+          PID
+        })
       }
       return api.globalQuery(opt)
     },

@@ -2,6 +2,7 @@ import axios from 'axios'
 import wx from 'weixin-js-sdk'
 import api from '../api'
 import qs from 'qs'
+import store from '@/store'
 // const comOpenId = 'gh_ba3ae28cdc9b'
 const webRoot = 'http://whdc.1juke.cn'
 let wxConf = {
@@ -20,19 +21,22 @@ let wxConf = {
     let _self = this
     api.getAuth().then((res) => {
       if (res.data.IsSuccess) {
-        wx.config({
-          debug: false,
-          appId: res.data.Data.AppId,
-          timestamp: res.data.Data.Timestamp,
-          nonceStr: res.data.Data.NonceStr,
-          signature: res.data.Data.Signature,
-          jsApiList: this.apilist
-        })
-        wx.ready(() => {
-          wx.onMenuShareAppMessage(_self.shareData)
-          wx.onMenuShareTimeline(_self.shareData)
-          wx.onMenuShareQQ(_self.shareData)
-        })
+        if (store.state.global.wxReady !== true) {
+          wx.config({
+            debug: false,
+            appId: res.data.Data.AppId,
+            timestamp: res.data.Data.Timestamp,
+            nonceStr: res.data.Data.NonceStr,
+            signature: res.data.Data.Signature,
+            jsApiList: this.apilist
+          })
+          wx.ready(() => {
+            store.state.global.wxReady = true
+            wx.onMenuShareAppMessage(_self.shareData)
+            wx.onMenuShareTimeline(_self.shareData)
+            wx.onMenuShareQQ(_self.shareData)
+          })
+        }
       } else {
         location.href = res.data.Data
       }

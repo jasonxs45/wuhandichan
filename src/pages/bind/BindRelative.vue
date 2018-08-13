@@ -6,11 +6,11 @@
     </div>
     <div class="content">
       <p class="tip">* 请输入姓名</p>
-      <XInput v-model="form.name" :readonly="true" placeholder="请输入姓名"/>
+      <XInput v-model="form.name" :readonly="readonly" placeholder="请输入姓名"/>
       <p class="tip">* 请输入身份证</p>
       <XInput  v-model="form.id" :readonly="readonly" placeholder="请输入身份证"/>
       <p class="tip">* 请输入手机号码</p>
-      <XInput v-model="form.tel" :readonly="true" placeholder="请输入手机号码" htmlType="tel"/>
+      <XInput v-model="form.tel" :readonly="readonly" placeholder="请输入手机号码" htmlType="tel"/>
       <p class="tip">家属绑定房源，必须业主审核，<br/>请将此页面转发给业主，提醒业主审核您的家属身份。</p>
       <Btn type="primary" size="lar" text="提交" @click="submitHandler"/>
       <Btn type="default" size="lar" text="返回" @click="$router.go(-1)"/>
@@ -28,8 +28,7 @@ import {
 } from 'components'
 import {
   NAME_REG,
-  TEL_REG,
-  ID_CHECK
+  TEL_REG
 } from 'common/data'
 import api from 'common/api'
 import wx from 'weixin-js-sdk'
@@ -55,7 +54,10 @@ export default {
   },
   computed: {
     readonly () {
-      return !!this.user.CertNumber
+      return !!this.user
+    },
+    wxReady () {
+      return this.$store.state.global.wxReady
     }
   },
   created () {
@@ -94,7 +96,7 @@ export default {
           title: `${this.$store.state.userInfo.nickname}申请加入武汉地产`,
           desc: '请审核身份真实有效性后进行绑定',
           link: location.origin + location.pathname + `#/bind/bindownerconfirm/type/${this.typeid}/member/${this.memberid}`,
-          imgUrl: 'http://jindi.1juke.cn/dist/static/images/active1.png'
+          imgUrl: 'http://whdc.1juke.cn/whdcMicro/static/images/logo.png'
       }
       wx.onMenuShareAppMessage(shareData)
     },
@@ -107,7 +109,7 @@ export default {
           this.changeShare()
           let index = window.$alert({
             title: '申请已提交！',
-            content: '请将本页面转发给已绑定的业主审核，<br/>待通过后才能完成家属注册流程！',
+            content: '点击右上角，将本页面转发给已绑定的业主审核，<br/>待业主审核通过后才能完成家属注册流程！',
             yes () {
               window.$close(index)
               // _self.toggleShare()
@@ -133,10 +135,10 @@ export default {
         window.$alert('身份证号码不能为空')
         return
       }
-      if (!ID_CHECK(this.form.id)) {
-        window.$alert('请填写正确的身份证号码')
-        return
-      }
+      // if (!this.form.id.match(ID_REG)) {
+      //   window.$alert('请填写正确格式的身份证号码')
+      //   return
+      // }
       if (!this.form.tel) {
         window.$alert('手机号码不能为空')
         return
@@ -174,7 +176,7 @@ export default {
   .content{
     padding:p2r($base-padding) p2r(45);
     .tip{
-      color:$text-sub-color;
+      color:$primary-color;
       font-size: p2r(26);
       margin-top: p2r(30);
       font-weight: 200;

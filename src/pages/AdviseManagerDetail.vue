@@ -64,7 +64,7 @@
     <div class="btns">
       <flexbox class="double">
         <flexbox-item v-if="item.IsMyManage && role === '物业客服' && item.State === 1" class="fi"><Btn class="accept" size="lar" type="primary" text="指派" @click="toggleSend"/></flexbox-item>
-        <flexbox-item v-if="item.State === 0" class="fi"><Btn class="accept" size="lar" type="primary" text="受理" @click="accept"/></flexbox-item>
+        <flexbox-item v-if="item.State === 0 && role === '物业客服'" class="fi"><Btn class="accept" size="lar" type="primary" text="受理" @click="accept"/></flexbox-item>
         <flexbox-item v-if="item.IsMyManage && item.State === 1" class="fi"><Btn class="accept" size="lar" type="primary" text="处理" @click="toggleDeal"/></flexbox-item>
       </flexbox>
       <Btn class="back" size="lar" type="default" text="返回" @click="back"/>
@@ -108,10 +108,24 @@
             <x-select
               v-model="selectedJudge"
               placeholder="请选择问题定性"
+              @change="getSubJudge"
             >
               <x-option
                 v-for="(item, index) in judgeArr"
                 :key="'kf-'+index"
+                :label="item.Name"
+                :value="item.ID"
+              >
+              </x-option>
+            </x-select>
+            <x-select
+              v-if="judgeArr1.length > 0"
+              v-model="selectedJudge1"
+              placeholder="请选择问题定性"
+            >
+              <x-option
+                v-for="(item, index) in judgeArr1"
+                :key="'kf1-'+index"
                 :label="item.Name"
                 :value="item.ID"
               >
@@ -189,6 +203,8 @@ export default {
       showDeal: false,
       judgeArr: [],
       selectedJudge: '',
+      judgeArr1: [],
+      selectedJudge1: '',
       coments: '',
       uploadedImgs: []
     }
@@ -220,6 +236,11 @@ export default {
         }
       }
       return arr
+    },
+    judges () {
+      return this.judgeArr1.length > 0 && this.selectedJudge1
+              ? this.selectedJudge.label + (this.judgeArr1.length > 0 ? '-' + this.selectedJudge1.label : '')
+              : this.selectedJudge.label
     }
   },
   watch: {
@@ -353,11 +374,21 @@ export default {
         this.getJudge()
       }
     },
-    getJudge () {
-      api.advise.manager.getJudge()
+    getJudge (PID) {
+      api.advise.manager.getJudge(PID)
       .then(({res, index}) => {
         if (res.data.IsSuccess) {
           this.judgeArr = res.data.Data
+        } else {
+          window.$alert(res.data.Message)
+        }
+      })
+    },
+    getSubJudge (e) {
+      api.advise.manager.getJudge(e.value)
+      .then(({res, index}) => {
+        if (res.data.IsSuccess) {
+          this.judgeArr1 = res.data.Data
         } else {
           window.$alert(res.data.Message)
         }
@@ -372,12 +403,16 @@ export default {
         window.$alert('请选择问题定性')
         return
       }
+      if (this.judgeArr1.length > 0 && !this.selectedJudge1) {
+        window.$alert('请选择问题定性')
+        return
+      }
       if (!this.coments) {
         window.$alert('请填写回复内容')
         return
       }
       let imgs = this.uploadedImgs.join(',')
-      api.advise.manager.submitJudge(this.id, this.coments, imgs, this.selectedJudge.label)
+      api.advise.manager.submitJudge(this.id, this.coments, imgs, this.judges)
       .then(({res, index}) => {
         if (res.data.IsSuccess) {
           let index = window.$alert({

@@ -21,8 +21,8 @@
               </div>
               <p class="stage">{{item.StageName}} {{item.Building}} - {{item.Unit}}单元{{item.HouseNo}}</p>
               <flexbox class="stage" justify="justify">
-                <flexbox-item>建筑面积：{{item.BuildArea || '--'}}㎡</flexbox-item>
-                <flexbox-item style="text-align:right">合同交付日期：{{item.ContractDate}}</flexbox-item>
+                <!-- <flexbox-item>建筑面积：{{item.BuildArea || '--'}}㎡</flexbox-item> -->
+                <flexbox-item>合同交付日期：{{item.ContractDate}}</flexbox-item>
               </flexbox>
             </div>
             <Btn type="base" text="成员列表" @click.stop="goMembers(item.ID)"/>

@@ -62,7 +62,7 @@ const navs = [
   },
   {
     path: 'finished',
-    text: '已完成'
+    text: '已处理'
   }
 ]
 export default {

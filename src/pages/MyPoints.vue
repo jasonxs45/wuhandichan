@@ -5,10 +5,10 @@
         <span class="text">当前积分：</span><br />
         <span class="count">{{myPoints}}</span>
       </p>
-      <p class="gohelp" @click="toggleHelp">
+      <!-- <p class="gohelp" @click="toggleHelp">
         <span class="text">积分规则</span>
         <Icon name="help"/>
-      </p>
+      </p> -->
     </div>
     <div class="content">
       <nodata v-if="record.length<1">暂无记录</nodata>

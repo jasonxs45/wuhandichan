@@ -11,7 +11,8 @@ Vue.use(Vuex)
 
 let state = {
   global: {
-    openid: '123asda'
+    openid: '123asda',
+    wxReady: false
   }
 }
 

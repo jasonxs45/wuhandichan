@@ -27,7 +27,7 @@
               <Avatar :src="item.HeadImgUrl"/>
               <span class="name">{{item.Name}}</span>
               <span class="tag" :class="item.classType">{{item.OwnerType}}</span>
-              <Btn v-if="house.BindType === 3 || house.BindType === item.BindType" type="base" text="房源解绑" @click.stop="unBind(house.BindType, item.BindType, item.ID)"/>
+              <!-- <Btn v-if="house.BindType === 3 || house.BindType === item.BindType" type="base" text="房源解绑" @click.stop="unBind(house.BindType, item.BindType, item.ID)"/> -->
             </div>
           </div>
         </template>
