@@ -13,14 +13,14 @@ module.exports = {
     // proxyTable: {},
     proxyTable: {
       '/Mobile-PostAPI': {
-        target: 'http://whdc.1juke.cn',
+        target: 'http://api.1juke.cn',
         changeOrigin: true,
         pathRewrite: {
           '^/Mobile-PostAPI': '/Mobile-PostAPI'
         }
       },
       '/Admin-GetAuthorize': {
-        target: 'http://whdc.1juke.cn',
+        target: 'http://api.1juke.cn',
         changeOrigin: true,
         pathRewrite: {
           '^/Admin-GetAuthorize': '/Admin-GetAuthorize'

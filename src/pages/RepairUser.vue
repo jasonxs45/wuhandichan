@@ -56,7 +56,7 @@
             </flexbox-item>
           </flexbox>
         </template>
-        <template v-if="item.State === 4">
+        <template v-if="item.State === 9">
           <flexbox class="score">
             <flexbox-item class="text">
               维修评分
@@ -99,6 +99,10 @@ let navs = [
   {
     path: 'finished',
     text: '已完成'
+  },
+  {
+    path: 'canceled',
+    text: '已取消'
   }
 ]
 export default {
@@ -155,10 +159,10 @@ export default {
           str = '处理中'
           break
         case 3:
-          str = '未评价'
+          str = '已完成'
           break
         case 4:
-          str = '已评价'
+          str = '已完成'
           break
         case 5:
           str = '已取消'
@@ -186,7 +190,12 @@ export default {
     list () {
       this.$store.dispatch('repair/list', {
         role: this.role,
-        stateType: this.stateType
+        stateType: this.stateType,
+        reje: () => {
+          this.$router.push({
+            name: 'bind'
+          })
+        }
       })
     },
     stateChangeHandler () {

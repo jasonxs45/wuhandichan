@@ -17,58 +17,63 @@
       </x-select>
     </div>
     <div class="panel">
-      <h3 class="title">选择具体部位</h3>
-      <div class="tags super">
-        <flexbox
-          wrap="wrap"
-          class="tags-row"
-        >
-          <div
-            v-for="(item, index) in supertags"
-            :key="'supertag-'+index+item.ID"
-            class="radio-tag"
-          >
-            <span
-             :class="item.checked && currentSuperTagIndex === index ? 'checked' : selectedTags.some(item1 => item1.startsWith(item.Name)) ? 'checking' : ''"
-             :data-index="index"
-             class="text"
-             @click="superChangeHandler"
-            >{{item.Name}}</span>
+      <div class="tags">
+        <flexbox justify="justify">
+          <h3 class="title">选择部位</h3>
+          <div class="selected-span" @click="toggleTags('partAll')">
+            <span :class="selectedPart ? 'color' : ''" class="text">{{selectedPartName || '全部'}}</span>
+            <Icon :class="partAll?'show':'hide'" class="arrow-right" name="arrow-right1"/>
           </div>
         </flexbox>
-      </div>
-      <Split v-if="subtags.length > 0" type="line"/>
-      <div class="tags sub">
-        <flexbox
-          wrap="wrap"
-          class="tags-row"
-        >
-          <div
-            v-for="(item, index) in subtags"
-            :key="'subtag-'+currentSuperTagIndex+index+item.ID"
-            class="radio-tag"
-          >
-            <span
-              :class="item.checked ? 'checked' : ''"
-              :data-index="index"
-              class="text"
-              @click="subChangeHandler"
-            >{{item.Name}}</span>
-          </div>
+        <flexbox wrap="wrap" class="tags-row" :class="partAll ? 'show': 'hide'">
+          <label v-for="(item, index) in parts" :key="'part-'+index+item.ID" class="radio-tag">
+            <input v-model="selectedPart" class="radio" type="radio" name="part" :value="item.ID">
+            <span class="text">{{item.Name}}</span>
+          </label>
         </flexbox>
       </div>
-      <Split type="line"/>
-      <div class="selected-info">
-        <h3 class="head">已选部位：</h3>
-        <div class="body">
-          <div
-            v-for="(item, index) in selectedTags"
-            :key="'st-'+index"
-            class="selected-tag"
-          >
-            <span class="text">{{item}}</span>
+      <div v-if="selectedPart" class="tags">
+        <flexbox justify="justify">
+          <h3 class="title">选择部品</h3>
+          <div class="selected-span" @click="toggleTags('partresAll')">
+            <span :class="selectedPartRes ? 'color' : ''" class="text">{{selectedPartResName || '全部'}}</span>
+            <Icon :class="partresAll?'show':'hide'" class="arrow-right" name="arrow-right1"/>
           </div>
-        </div>
+        </flexbox>
+        <flexbox wrap="wrap" class="tags-row" :class="partresAll ? 'show': 'hide'">
+          <label v-for="(item, index) in partres" :key="'partres-'+index+item.ID" class="radio-tag">
+            <input v-model="selectedPartRes" class="radio" type="radio" name="partres" :value="item.ID">
+            <span class="text">{{item.Name}}</span>
+          </label>
+        </flexbox>
+      </div>
+      <div v-if="selectedPartRes" class="tags">
+        <flexbox justify="justify">
+          <h3 class="title">选择问题</h3>
+          <div class="selected-span" @click="toggleTags('troubleAll')">
+            <span :class="selectedTrouble ? 'color' : ''" class="text">{{selectedTroubleName || '全部'}}</span>
+            <Icon :class="troubleAll?'show':'hide'" class="arrow-right" name="arrow-right1"/>
+          </div>
+        </flexbox>
+        <flexbox wrap="wrap" class="tags-row" :class="troubleAll ? 'show': 'hide'">
+          <label v-for="(item, index) in trouble" :key="'trouble-'+index+item.ID" class="radio-tag">
+            <input v-model="selectedTrouble" class="radio" type="radio" name="trouble" :value="item.ID">
+            <span class="text">{{item.Name}}</span>
+          </label>
+        </flexbox>
+      </div>
+      <div v-if="selectedPartName" class="selected-info">
+        <Split type="line"/>
+        <flexbox align="center" justify="justify">
+          <h3 class="head">报修问题：</h3>
+          <div class="body">
+            <div class="selected-tag">
+              <span class="text">{{selectedPartName}}</span>
+              <span v-if="selectedPartResName" class="text">-{{selectedPartResName}}</span>
+              <span v-if="selectedTroubleName" class="text">-{{selectedTroubleName}}</span>
+            </div>
+          </div>
+        </flexbox>
       </div>
       <XTextarea
         v-model="form.desc"
@@ -94,18 +99,9 @@
       </img-row>
     </div>
     <div class="panel">
-      <h3 class="title">联系人信息</h3>
-      <XInput
-        v-model="form.name"
-        placeholder="联系人姓名"
-        class="name"
-      />
-      <XInput
-        v-model="form.tel"
-        placeholder="联系人电话"
-        htmlType="tel"
-        class="tel"
-      />
+      <h3 class="title" style="margin-top:15px;">联系人信息</h3>
+      <XInput v-model="form.name" placeholder="联系人姓名" class="name" />
+      <XInput v-model="form.tel" placeholder="联系人电话" htmlType="tel" class="tel" />
     </div>
   </div>
   <Btn
@@ -156,10 +152,13 @@ export default {
     return {
       houses: [],
       tagsState: 0,
-      supertags: [],
-      subtags: [],
-      currentSuperTagIndex: '',
-      currentSubTagIndex: '',
+      troubleGroup: {},
+      partAll: false,
+      selectedPart: '',
+      partresAll: false,
+      selectedPartRes: '',
+      troubleAll: false,
+      selectedTrouble: '',
       uploadedImgs: [],
       form: {
         house: '',
@@ -173,21 +172,49 @@ export default {
     state () {
       return this.$store.state.userInfo.state
     },
-    selectedTags () {
-      let selectedArr = []
-      let arr = this.supertags.filter(item => item.checked === true)
-      for (let i = 0; i < arr.length; i++) {
-        let subarr = arr[i].Sub.filter(item => {
-          if (item.checked === true) {
-            return item.Name
-          }
-        })
-        for (let j = 0; j < subarr.length; j++) {
-          let str = `${arr[i].Name}-${subarr[j].Name}`
-          selectedArr.push(str)
+    parts () {
+      return this.troubleGroup.Part
+    },
+    partres () {
+      let pid = this.selectedPart
+      return this.troubleGroup.PartRes.filter(item => item.PartID === pid)
+    },
+    trouble () {
+      let pid = this.selectedPartRes
+      return this.troubleGroup.Trouble.filter(item => item.PartResID === pid)
+    },
+    selectedPartName () {
+      let name = ''
+      if (this.parts && this.parts.length > 0 && this.selectedPart) {
+        if (this.parts.find(item => item.ID === this.selectedPart)) {
+          name = this.parts.find(item => item.ID === this.selectedPart).Name
+        } else {
+          name = ''
         }
       }
-      return selectedArr
+      return name
+    },
+    selectedPartResName () {
+      let name = ''
+      if (this.partres && this.partres.length > 0 && this.selectedPartRes) {
+        if (this.partres.find(item => item.ID === this.selectedPartRes)) {
+          name = this.partres.find(item => item.ID === this.selectedPartRes).Name
+        } else {
+          name = ''
+        }
+      }
+      return name
+    },
+    selectedTroubleName () {
+      let name = ''
+      if (this.trouble && this.trouble.length > 0 && this.selectedTrouble) {
+        if (this.trouble.find(item => item.ID === this.selectedTrouble)) {
+          name = this.trouble.find(item => item.ID === this.selectedTrouble).Name
+        } else {
+          name = ''
+        }
+      }
+      return name
     }
   },
   watch: {
@@ -195,6 +222,13 @@ export default {
       if (newVal !== 4) {
         this.checkIdentity()
       }
+    },
+    selectedPart () {
+      this.selectedPartRes = ''
+      this.selectedTrouble = ''
+    },
+    selectedPartRes () {
+      this.selectedTrouble = ''
     }
   },
   created () {
@@ -240,14 +274,8 @@ export default {
       api.repair.user.parts()
       .then(({res, index}) => {
         if (res.data.IsSuccess) {
-          let supertags = res.data.Data
-          supertags.forEach(item => {
-            item.checked = false
-            item.Sub.forEach(item => {
-              item.checked = false
-            })
-          })
-          this.supertags = supertags
+          let troubleGroup = res.data.Data
+          this.troubleGroup = troubleGroup
         } else {
           window.$alert(res.data.Message)
         }
@@ -255,31 +283,8 @@ export default {
         console.log(err)
       })
     },
-    superChangeHandler (e) {
-      let index = e.target.dataset.index
-      if (this.currentSuperTagIndex === parseInt(index)) {
-        this.supertags[this.currentSuperTagIndex].checked = !this.supertags[this.currentSuperTagIndex].checked
-      } else {
-        this.currentSuperTagIndex = parseInt(index)
-        this.supertags[this.currentSuperTagIndex].checked = true
-      }
-      if (!this.supertags[this.currentSuperTagIndex].checked) {
-        this.supertags[this.currentSuperTagIndex].Sub.forEach(item => {
-          item.checked = false
-        })
-        this.subtags = []
-      } else {
-        this.subtags = this.supertags[index].Sub
-      }
-    },
-    subChangeHandler (e) {
-      let index = e.target.dataset.index
-      this.currentSubTagIndex = parseInt(index)
-      this.supertags[this.currentSuperTagIndex].Sub[index].checked = !this.supertags[this.currentSuperTagIndex].Sub[index].checked
-      this.supertags[this.currentSuperTagIndex].checked = this.supertags[this.currentSuperTagIndex].Sub.some(item => item.checked)
-      if (!this.supertags[this.currentSuperTagIndex].checked) {
-        this.subtags = []
-      }
+    toggleTags (str) {
+      this[str] = !this[str]
     },
     uploadImg (res) {
       this.uploadedImgs.push(res)
@@ -291,9 +296,21 @@ export default {
         })
         return
       }
-      if (this.selectedTags.length < 1) {
+      if (!this.selectedPart) {
         window.$alert({
           content: '请选择报修部位'
+        })
+        return
+      }
+      if (!this.selectedPartRes) {
+        window.$alert({
+          content: '请选择报修部品'
+        })
+        return
+      }
+      if (!this.selectedTrouble) {
+        window.$alert({
+          content: '请选择报修问题'
         })
         return
       }
@@ -305,7 +322,7 @@ export default {
       }
       if (!this.form.name.match(NAME_REG)) {
         window.$alert({
-          content: '请填写正确格式的联系人姓名'
+          content: '请填写正确格式的姓名（2-6位中文字）'
         })
         return
       }
@@ -320,7 +337,7 @@ export default {
         HouseID: this.form.house.value,
         Name: this.form.name,
         Tel: this.form.tel,
-        Part: this.selectedTags.join(';'),
+        TroubleID: this.selectedTrouble,
         Content: this.form.desc,
         Images: this.uploadedImgs.join(',')
       }
@@ -367,7 +384,7 @@ export default {
   .panel{
     width:100%;
     height:auto;
-    padding:p2r(40) p2r(45) p2r(60);
+    padding:p2r(40) p2r(30) p2r(60);
     background: #fff;
     border-radius: 4px;
     margin:p2r(40) 0;
@@ -396,39 +413,60 @@ export default {
     }
     .title{
       font-size: p2r(26);
-      text-align: center;
-      color: $text-color;
+      color: $text-sub-color;
+    }
+    .selected-span{
+      text-align: right;
+      font-size: 0;
+      .text{
+        display: inline-block;
+        font-size: p2r(26);
+        padding-right: p2r(10);
+        color: $thr-color;
+        &.color{
+          color:$primary-color;
+        }
+      }
+      .iconfont{
+        display: inline-block;
+        font-size: p2r(26);
+        color:$thr-color;
+        &.hide{
+          transform: rotate(90deg);
+        }
+        &.show{
+          transform: rotate(-90deg);
+        }
+      }
     }
     .selected-info{
       padding: p2r(20) 0;
+      .flexbox{
+        margin-top: p2r(30);
+      }
       .head{
         flex:0 0 auto;
         font-size: p2r(26);
         color:$text-color;
         font-weight: 200;
-        line-height: p2r(60);
-        padding-top: p2r(10);
+        line-height: p2r(40);
       }
       .body{
-        margin-left: p2r(-10);
-        margin-right: p2r(-10);
         font-size: 0;
         .selected-tag{
           display: inline-block;
-          border:1px solid $primary-color;
+          background: $primary-color;
           height: p2r(60);
           line-height: p2r(60);
-          padding:0 p2r(20);
-          min-width: p2r(120);
+          padding:0 p2r(10);
           border-radius: p2r(4);
           font-size: 0;
           text-align: center;
-          color:lighten($primary-color, 8%);
-          margin:p2r(10);
           .text{
             display: inline-block;
             font-size: p2r(24);
             vertical-align: top;
+            color:#fff;
           }
           .icon{
             display: inline-block;
@@ -448,41 +486,52 @@ export default {
       margin-top: p2r(40);
     }
     .tags{
-      margin-top: p2r(20);
+      margin-top: p2r(30);
       .tags-row{
         margin-left: p2r(-20);
         margin-right: p2r(-20);
+        margin-top: p2r(20);
+        &.hide{
+          overflow: hidden;
+          height: p2r(80);
+        }
+        &.show{
+          height: auto;
+        }
         .radio-tag{
           display: inline-block;
           position: relative;
-          margin:p2r(10) p2r(20);
+          margin:p2r(10) 0;
+          width: 33.333%;
+          padding:0 p2r(15);
           .radio{
             position: absolute;
             top:0;
             left:0;
-            width:0;
-            height:0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            &:checked{
+              & + .text{
+                background: $primary-color;
+                border-color: $primary-color;
+                color:#fff;
+              }
+            }
           }
           .text{
             display: block;
             border:1px solid $thr-color;
             height: p2r(60);
             line-height: p2r(60);
-            padding:0 p2r(20);
-            min-width: p2r(120);
+            padding:0 p2r(10);
             border-radius: p2r(4);
             font-size: p2r(24);
             text-align: center;
             color:$thr-color;
-            &.checking{
-              background:lighten($text-sub-color, 30%);
-              border-color:lighten($text-sub-color, 30%);
-              color:#fff;
-            }
-            &.checked{
-              background: $primary-color;
-              color:#fff;
-            }
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
           }
         }
       }

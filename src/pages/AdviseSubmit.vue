@@ -186,7 +186,7 @@ export default {
       .then(({res, index}) => {
         if (res.data.IsSuccess) {
           let index = window.$alert({
-            title: '恭喜你',
+            title: '提示',
             content: '提交成功！',
             yes () {
               window.$close(index)

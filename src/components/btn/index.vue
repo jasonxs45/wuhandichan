@@ -100,5 +100,10 @@ export default {
     margin-left:auto;
     margin-right: auto;
   }
+  &.mini{
+    display: inline-block;
+    width: p2r(180);
+    font-size: p2r(32);
+  }
 }
 </style>

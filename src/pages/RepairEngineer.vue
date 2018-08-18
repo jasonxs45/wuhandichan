@@ -51,7 +51,7 @@
             </flexbox-item>
           </flexbox>
         </template>
-        <template v-if="item.State === 4">
+        <template v-if="item.State === 9">
           <flexbox class="score">
             <flexbox-item class="text">
               维修评分
@@ -72,7 +72,6 @@
 </template>
 <script>
 import {
-  Userinfo,
   Flexbox,
   FlexboxItem,
   Split,
@@ -84,26 +83,21 @@ import {
 } from 'common/utils/date'
 let navs = [
   {
-    path: 'untreated',
-    text: '未处理'
+    path: 'treating',
+    text: '处理中'
   },
   {
     path: 'treated',
-    text: '已接单'
+    text: '已处理'
   },
   {
     path: 'finished',
     text: '已完成'
-  },
-  {
-    path: 'canceled',
-    text: '已取消'
   }
 ]
 export default {
   name: 'RepairEngineer',
   components: {
-    Userinfo,
     Flexbox,
     FlexboxItem,
     Split,
@@ -157,7 +151,6 @@ export default {
         })
         return
       }
-      // this.list(this.stateType)
       if (this.engineer[this.stateType].page < 1) {
         this.list(this.stateType)
       }

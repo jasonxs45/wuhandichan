@@ -33,7 +33,7 @@
           <Split type="line"/>
           <flexbox>
             <flexbox-item class="engineer-name">
-              工程师：{{repair.AdminName}}
+              物业工程师：{{repair.AdminName}}
             </flexbox-item>
             <flexbox-item class="tel">
               <a :href="`tel:${repair.AdminTel}`">{{repair.AdminTel}}</a>
@@ -178,6 +178,7 @@ export default {
   },
   computed: {
     repair () {
+      console.log(this.content)
       return this.content ? this.content.repair : {}
     },
     imgs () {
@@ -196,7 +197,7 @@ export default {
     },
     currentProgress () {
       return this.content
-             ? this.content.logList
+             ? this.content.logList.filter(item => item.MemberSee === true)
              : []
     }
   },
@@ -221,10 +222,10 @@ export default {
           str = '处理中'
           break
         case 3:
-          str = '未评价'
+          str = '已完成'
           break
         case 4:
-          str = '已评价'
+          str = '已完成'
           break
         case 5:
           str = '已取消'

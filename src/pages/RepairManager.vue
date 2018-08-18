@@ -1,12 +1,6 @@
 <template>
   <div class="repair-user repair-manager">
-    <userinfo type-class="rectangle">
-      <span slot="tag" class="kefu">客服</span>
-      <div class="name" slot="desc">
-        <span>{{managerInfo.Name}}</span> <a :href="'tel:'+managerInfo.Tel">{{managerInfo.Tel}}</a>
-      </div>
-    </userinfo>
-    <flexbox class="links" style="display:none">
+    <flexbox class="links">
       <flexbox-item
         v-for="(item, index) in navs"
         :key="item.path+index"
@@ -56,7 +50,7 @@
             </flexbox-item>
           </flexbox>
         </template>
-        <template v-if="item.State === 4">
+        <template v-if="item.State === 9">
           <flexbox class="score">
             <flexbox-item class="text">
               维修评分
@@ -77,7 +71,6 @@
 </template>
 <script>
 import {
-  Userinfo,
   Flexbox,
   FlexboxItem,
   Split,
@@ -87,17 +80,32 @@ import {
 import {
   formatDate
 } from 'common/utils/date'
-import api from 'common/api'
+// import api from 'common/api'
 let navs = [
   {
     path: 'untreated',
     text: '待受理'
+  },
+  {
+    path: 'treating',
+    text: '已分配'
+  },
+  {
+    path: 'treated',
+    text: '已处理'
+  },
+  {
+    path: 'finished',
+    text: '已完成'
+  },
+  {
+    path: 'canceled',
+    text: '已取消'
   }
 ]
 export default {
   name: 'RepairManager',
   components: {
-    Userinfo,
     Flexbox,
     FlexboxItem,
     Split,
@@ -130,7 +138,6 @@ export default {
   },
   created () {
     this.stateType = this.$route.params.state
-    this.getInfo()
     this.stateChangeHandler()
   },
   destroyed () {
@@ -165,20 +172,6 @@ export default {
           id
         }
       })
-    },
-    getInfo () {
-      api.repair.manager.info()
-      .then(({res, index}) => {
-        if (res.data.IsSuccess) {
-          let info = res.data.Data
-          this.managerInfo = info
-        } else {
-          window.$alert(res.data.Message)
-        }
-      })
-      .catch(err => {
-        console.log(err)
-      })
     }
   }
 }
@@ -189,17 +182,6 @@ export default {
  .repair-user{
    width: 100vw;
    height: 100vh;
-   .user-info{
-     .name{
-       span{
-         font-size: p2r(26);
-       }
-       a{
-         font-size: p2r(26);
-         color:#fff;
-       }
-     }
-   }
    .links{
       height:p2r(80);
       box-shadow: $box-shadow;
@@ -245,7 +227,7 @@ export default {
    }
    .content{
      width: 100%;
-     height: calc(100% - 5.12rem);
+     height: calc(100% - 1.71rem);
      background: $background-color;
      overflow-y: auto;
      padding: p2r($base-padding);

@@ -106,13 +106,13 @@
         <div class="dispatch-wrapper">
           <x-select v-model="selectedEngineer" placeholder="选择重新分配的工程师">
             <x-option
-              v-for="(engineer, index) in engineerList"
+              v-for="(engineer, index) in engineers"
               :key="'engineer-' + index"
-              :label="engineer.Name"
+              :label="engineer.CompanyName"
               :value="engineer.ID"
             >
               <flexbox>
-                <flexbox-item class="left">{{engineer.Name}}</flexbox-item>
+                <flexbox-item class="left">{{engineer.CompanyName}}</flexbox-item>
                 <flexbox-item class="right"></flexbox-item>
               </flexbox>
             </x-option>

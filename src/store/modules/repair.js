@@ -4,45 +4,38 @@ import api from 'common/api'
 const state = {
   user: {
     untreated: {
-      stateId: 0,
       orders: [],
       page: 0,
       lastPage: false
     },
     treated: {
-      stateId: 1,
       orders: [],
       page: 0,
       lastPage: false
     },
     finished: {
-      stateId: 2,
+      orders: [],
+      page: 0,
+      lastPage: false
+    },
+    canceled: {
       orders: [],
       page: 0,
       lastPage: false
     }
   },
   engineer: {
-    untreated: {
-      stateId: 0,
+    treating: {
       orders: [],
       page: 0,
       lastPage: false
     },
     treated: {
-      stateId: 1,
       orders: [],
       page: 0,
       lastPage: false
     },
     finished: {
-      stateId: 2,
-      orders: [],
-      page: 0,
-      lastPage: false
-    },
-    canceled: {
-      stateId: 3,
       orders: [],
       page: 0,
       lastPage: false
@@ -50,13 +43,11 @@ const state = {
   },
   engineermanager: {
     untreated: {
-      stateId: 0,
       orders: [],
       page: 0,
       lastPage: false
     },
     timeout: {
-      stateId: 1,
       orders: [],
       page: 0,
       lastPage: false
@@ -64,7 +55,26 @@ const state = {
   },
   manager: {
     untreated: {
-      stateId: 0,
+      orders: [],
+      page: 0,
+      lastPage: false
+    },
+    treating: {
+      orders: [],
+      page: 0,
+      lastPage: false
+    },
+    treated: {
+      orders: [],
+      page: 0,
+      lastPage: false
+    },
+    finished: {
+      orders: [],
+      page: 0,
+      lastPage: false
+    },
+    canceled: {
       orders: [],
       page: 0,
       lastPage: false
@@ -81,7 +91,7 @@ const getters = {
 
 // actions
 const actions = {
-  list ({commit, state}, {role, stateType}) {
+  list ({commit, state}, {role, stateType, reje}) {
     commit(types.REPAIR_NEXT, {role, stateType})
     api.repair.list(role, stateType, state[role][stateType].page)
     .then(({res, index}) => {
@@ -94,7 +104,13 @@ const actions = {
           }
         )
       } else {
-        window.$alert(res.data.Message)
+        let index = window.$alert({
+          content: res.data.Message,
+          yes: () => {
+            window.$close(index)
+            reje && reje()
+          }
+        })
       }
     })
     .catch(err => {

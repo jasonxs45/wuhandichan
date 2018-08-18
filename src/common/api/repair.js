@@ -13,20 +13,24 @@ const STATE = {
   user: {
     untreated: '待受理',
     treated: '处理中',
-    finished: '已完成'
-  },
-  engineer: {
-    untreated: '未处理',
-    treated: '已接单',
     finished: '已完成',
     canceled: '已取消'
+  },
+  engineer: {
+    treating: '已受理',
+    treated: '已处理',
+    finished: '已完成'
   },
   engineermanager: {
     untreated: '待审核',
     timeout: '已超时'
   },
   manager: {
-    untreated: '待处理'
+    untreated: '待受理',
+    treating: '已分配',
+    treated: '已处理',
+    finished: '已完成',
+    canceled: '已取消'
   }
 }
 let repair = {
@@ -64,7 +68,7 @@ let repair = {
       return api.globalQuery(opt)
     },
     // 提交报修单
-    submit ({HouseID, Name, Tel, Part, Content, Images}) {
+    submit ({HouseID, Name, Tel, TroubleID, Content, Images}) {
       let opt = {
         Act: 'RepairSave',
         Data: JSON.stringify(
@@ -72,7 +76,7 @@ let repair = {
             HouseID,
             Name,
             Tel,
-            Part,
+            TroubleID,
             Content,
             Images
           }
@@ -90,132 +94,25 @@ let repair = {
     }
   },
   engineer: {
-    // 受理
-    handleConfirm (ID) {
-      let opt = {
-        Act: 'RepairAccept',
-        Data: JSON.stringify({
-          ID
-        })
-      }
-      return api.globalQuery(opt)
-    },
-    // 拒绝订单
-    refuse (ID, RefuseReason) {
-      let opt = {
-        Act: 'RepairRefuse',
-        Data: JSON.stringify({
-          ID,
-          RefuseReason
-        })
-      }
-      return api.globalQuery(opt)
-    },
-    // 获取专业分类
-    parts () {
-      let opt = {
-        Act: 'RepairGetType'
-      }
-      return api.globalQuery(opt)
-    },
-    // 获取施工单位
-    servers () {
-      let opt = {
-        Act: 'RepairGetBuilder'
-      }
-      return api.globalQuery(opt)
-    },
-    // 提交一个子报修单
-    submitAllot (RepairID, TypeID, TypeName, TypeTimeLength, BuilderID, Desc, Images) {
-      let opt = {
-        Act: 'RepairAddDetail',
-        Data: JSON.stringify({
-          RepairID,
-          TypeID,
-          TypeName,
-          TypeTimeLength,
-          BuilderID,
-          Desc,
-          Images
-        })
-      }
-      return api.globalQuery(opt)
-    },
-    // 删除子报修单
-    delSubOrder (ID) {
-      let opt = {
-        Act: 'RepairDelDetail',
-        Data: JSON.stringify({
-          ID
-        })
-      }
-      return api.globalQuery(opt)
-    },
-    // 开始维修
-    startRepair (ID) {
+    // 完成报修
+    finishOrder (RepairID, Images, Desc) {
       let opt = {
         Act: 'RepairDeal',
         Data: JSON.stringify({
-          ID
-        })
-      }
-      return api.globalQuery(opt)
-    },
-    // 完成子报修单
-    finishSubOrder (ID) {
-      let opt = {
-        Act: 'RepairFinishDetail',
-        Data: JSON.stringify({
-          ID
-        })
-      }
-      return api.globalQuery(opt)
-    },
-    // 完成报修
-    finishOrder (ID) {
-      let opt = {
-        Act: 'RepairFinish',
-        Data: JSON.stringify({
-          ID
+          RepairID,
+          Images,
+          Desc
         })
       }
       return api.globalQuery(opt)
     }
   },
   engineermanager: {
-    // 驳回拒单
-    refuse (ID, ReturnMsg) {
-      let opt = {
-        Act: 'RepairReturn',
-        Data: JSON.stringify({
-          ID,
-          ReturnMsg
-        })
-      }
-      return api.globalQuery(opt)
-    },
     agree (ID) {
       let opt = {
         Act: 'RepairAgree',
         Data: JSON.stringify({
           ID
-        })
-      }
-      return api.globalQuery(opt)
-    },
-    getEngineers () {
-      let opt = {
-        Act: 'RepairGetEngineerList'
-      }
-      return api.globalQuery(opt)
-    },
-    change (ID, AdminID, AllotMsg) {
-      let opt = {
-        Act: 'RepairChangeEngineer',
-        Data: JSON.stringify({
-          ID,
-          AdminID,
-          AllotMsg
         })
       }
       return api.globalQuery(opt)
@@ -228,9 +125,43 @@ let repair = {
       }
       return api.globalQuery(opt)
     },
-    allEngineer () {
+    getEngineers (ID) {
       let opt = {
-        Act: 'RepairGetEngineerAll'
+        Act: 'RepairGetBuilder',
+        Data: JSON.stringify({
+          ID
+        })
+      }
+      return api.globalQuery(opt)
+    },
+    allot (ID, BuilderID, AllotMsg) {
+      let opt = {
+        Act: 'RepairAllot',
+        Data: JSON.stringify({
+          ID,
+          BuilderID,
+          AllotMsg
+        })
+      }
+      return api.globalQuery(opt)
+    },
+    reWrite (ID, TroubleID) {
+      let opt = {
+        Act: 'RepairChangeTrouble',
+        Data: JSON.stringify({
+          ID,
+          TroubleID
+        })
+      }
+      return api.globalQuery(opt)
+    },
+    refuse (ID, RefuseReason) {
+      let opt = {
+        Act: 'RepairRefuse',
+        Data: JSON.stringify({
+          ID,
+          RefuseReason
+        })
       }
       return api.globalQuery(opt)
     },
@@ -240,6 +171,25 @@ let repair = {
         Data: JSON.stringify({
           ID,
           AdminID
+        })
+      }
+      return api.globalQuery(opt)
+    },
+    passTreated (ID) {
+      let opt = {
+        Act: 'RepairDealPass',
+        Data: JSON.stringify({
+          ID
+        })
+      }
+      return api.globalQuery(opt)
+    },
+    refuseTreated (ID, ReturnMsg) {
+      let opt = {
+        Act: 'RepairDealRefuse',
+        Data: JSON.stringify({
+          ID,
+          ReturnMsg
         })
       }
       return api.globalQuery(opt)
