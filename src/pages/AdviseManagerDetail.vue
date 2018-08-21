@@ -42,7 +42,7 @@
         <p class="name">发起人：{{item.Name}}</p>
         <p class="tel">联系方式：<a :href="'tel:'+item.Tel">{{item.Tel}}</a></p>
         <p class="clearfix"></p>
-        <p class="content">{{item.Record.Content}}</p>
+        <p v-if="item.Record.Content" class="content">{{item.Record.Content}}</p>
         <img-row
           :group="replyImgs"
           :canUpload="false"
@@ -458,7 +458,7 @@ export default {
   .wrapper{
     width:100%;
     min-height: 100%;
-    padding-bottom: p2r(260);
+    padding-bottom: p2r(330);
     .title{
       padding: p2r(20) p2r(30);
       color:#fff;
@@ -561,7 +561,7 @@ export default {
   }
   .btns{
     position: relative;
-    margin-top: p2r(-240);
+    margin-top: p2r(-300);
     .double{
       width: p2r(640);
       margin: 0 auto;

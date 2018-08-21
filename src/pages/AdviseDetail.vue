@@ -39,8 +39,8 @@
         v-if="role === 'user' && item.State === 1"
         class="manager"
       >
-        <p v-if="item.AdminName" class="name">受理人：{{item.AdminName}}</p>
-        <p v-if="item.AdminTel" class="tel">联系方式：<a :href="'tel:'+item.AdminTel">{{item.AdminTel}}</a></p>
+        <!-- <p v-if="item.AdminName" class="name">受理人：{{item.AdminName}}</p>
+        <p v-if="item.AdminTel" class="tel">联系方式：<a :href="'tel:'+item.AdminTel">{{item.AdminTel}}</a></p> -->
         <p class="clearfix"></p>
         <p class="time">受理时间：{{item.AcceptTime}}</p>
       </div>
@@ -54,8 +54,8 @@
         <p class="time">发起时间：{{item.AddTime}}</p>
       </div>
       <div v-if="role === 'user' && item.Record && item.Record.State === 1" class="manager">
-        <p class="name">处理人：{{item.Record.AdminName}}</p>
-        <p class="tel">联系方式：<a :href="'tel:'+item.Record.AdminTel">{{item.Record.AdminTel}}</a></p>
+        <!-- <p class="name">处理人：{{item.Record.AdminName}}</p>
+        <p class="tel">联系方式：<a :href="'tel:'+item.Record.AdminTel">{{item.Record.AdminTel}}</a></p> -->
         <p class="clearfix"></p>
         <p class="content">{{item.Record.Content}}</p>
         <img-row
