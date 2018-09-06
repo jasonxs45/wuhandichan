@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-const webRoot = process.env.NODE_ENV === 'production' ? '' : 'http://api.1juke.cn'
+const webRoot = process.env.NODE_ENV === 'production' ? '' : 'http://whdc.1juke.cn'
 let entries = [
   {
     name: '我的房源',

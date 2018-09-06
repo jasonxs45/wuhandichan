@@ -5,7 +5,7 @@ const ROLE = {
   // 工程师
   engineer: '工程师',
   // 管理员
-  engineermanager: '工程师主管',
+  engineermanager: '地产客服',
   // 客服
   manager: '客服'
 }
@@ -94,6 +94,17 @@ let repair = {
     }
   },
   engineer: {
+    // 拒单
+    refuse (ID, RefuseReason) {
+      let opt = {
+        Act: 'RepairBuilderRefuse',
+        Data: JSON.stringify({
+          ID,
+          RefuseReason
+        })
+      }
+      return api.globalQuery(opt)
+    },
     // 完成报修
     finishOrder (RepairID, Images, Desc) {
       let opt = {
@@ -108,11 +119,32 @@ let repair = {
     }
   },
   engineermanager: {
-    agree (ID) {
+    agree (ID, RefuseReason) {
       let opt = {
-        Act: 'RepairAgree',
+        Act: 'RepairManagerCancel',
         Data: JSON.stringify({
-          ID
+          ID,
+          RefuseReason
+        })
+      }
+      return api.globalQuery(opt)
+    },
+    refuse (ID, ReturnMsg) {
+      let opt = {
+        Act: 'RepairManagerReturn',
+        Data: JSON.stringify({
+          ID,
+          ReturnMsg
+        })
+      }
+      return api.globalQuery(opt)
+    },
+    change (ID, ReturnMsg) {
+      let opt = {
+        Act: 'RepairManagerReturnToEdit',
+        Data: JSON.stringify({
+          ID,
+          ReturnMsg
         })
       }
       return api.globalQuery(opt)

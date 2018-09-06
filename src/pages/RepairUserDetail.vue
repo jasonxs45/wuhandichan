@@ -7,9 +7,9 @@
           <flexbox-item class="house-name">
             {{repair.ProjectName+repair.StageName}} {{repair.Building}} - {{repair.Unit}}-{{repair.HouseNo}}
           </flexbox-item>
-          <flexbox-item class="date">
+          <!-- <flexbox-item class="date">
             {{repair.AddTime|formatdate}}
-          </flexbox-item>
+          </flexbox-item> -->
         </flexbox>
         <div class="info">{{repair.Part}}</div>
         <div class="desc">{{repair.Content}}</div>
@@ -29,18 +29,60 @@
             <Fitimg :src="item" @on-click="previewImg(item, imgs)"/>
           </img-cell>
         </img-row>
+        <flexbox class="submit-date">
+          <flexbox-item class="tit">提交时间：</flexbox-item>
+          <flexbox-item class="date">
+            {{repair.AddTime|formatdate}}
+          </flexbox-item>
+        </flexbox>
         <template v-if="repair.AdminName">
           <Split type="line"/>
+          <div v-if="detailList.length > 0" class="sub-order-list">
+            <div
+              v-for="(item, index) in detailList"
+              :key="'detail-'+index"
+              class="sub-order"
+            >
+
+              <div v-if="item.Images.length > 0" class="more-detail">
+                <p class="title">整改后</p>
+                <img-row
+                  :group="item.Images"
+                  :canUpload="false"
+                  class="imgs"
+                >
+                  <img-cell
+                    v-for="(img, index) in item.Images"
+                    :index="index"
+                    :canUpload="false"
+                    :group="item.Images"
+                    :key="'subupimg-'+index"
+                  >
+                    <Fitimg :src="img" @on-click="previewImg(img, item.Images)"/>
+                  </img-cell>
+                </img-row>
+                <Split type="line" />
+              </div>
+              <flexbox v-if="repair.State > 1">
+                <flexbox-item class="engineer-name">
+                  处理时间：
+                </flexbox-item>
+                <flexbox-item class="tel">
+                  {{item.AddTime|formatdate}}
+                </flexbox-item>
+              </flexbox>
+            </div>
+          </div>
           <flexbox>
             <flexbox-item class="engineer-name">
-              物业工程师：{{repair.AdminName}}
+              物业维修管理员：{{repair.AdminName}}
             </flexbox-item>
-            <flexbox-item class="tel">
+            <!-- <flexbox-item class="tel">
               <a :href="`tel:${repair.AdminTel}`">{{repair.AdminTel}}</a>
-            </flexbox-item>
+            </flexbox-item> -->
           </flexbox>
         </template>
-        <div v-if="currentProgress && currentProgress.length > 0" class="progress">
+        <div v-if="currentProgress && currentProgress.length === -2" class="progress">
           <flexbox
             v-for="(item, index) in currentProgress"
             :key="'item-'+index"
@@ -74,7 +116,7 @@
     <div :class="['btns', repair.State !== 3 ? 'single' : '']">
       <!-- 用户 -->
       <Btn
-        v-if="repair.State === 3"
+        v-if="repair.State === 9"
         type="primary"
         size="lar"
         text="我要评价"
@@ -194,6 +236,21 @@ export default {
         arr = []
       }
       return arr
+    },
+    detailList () {
+      let list = this.content ? this.content.detailList : []
+      list.map(item => {
+        if (typeof item.Images === 'string') {
+          let arr = item.Images.split(',')
+          if (arr.length === 1 && !arr[0]) {
+            item.Images = []
+          } else {
+            let arr1 = arr.map(img => webRoot + img)
+            item.Images = arr1
+          }
+        }
+      })
+      return list.length > 0 ? [list[0]] : []
     },
     currentProgress () {
       return this.content
@@ -329,15 +386,12 @@ export default {
       })
     },
     back () {
-      if (window.history.length >= 2) {
-        window.history.go(-1)
-      } else {
-        if (window.wx) {
-          wxConf.closeWindow()
-        } else {
-          window.close()
+      this.$router.replace({
+        name: 'repairuser',
+        params: {
+          state: 'untreated'
         }
-      }
+      })
     }
   }
 }
@@ -386,6 +440,13 @@ export default {
         line-height: p2r(28 * 1.7);
         color: $thr-color;
       }
+      .submit-date{
+        margin-top: p2r(30);
+        .tit{
+          color: $text-color;
+          line-height: p2r(28 * 1.7);
+        }
+      }
       .info{
         background: $primary-color;
         color: #fff;
@@ -408,7 +469,7 @@ export default {
       .engineer-name,
       .tel{
         font-size: p2r(26);
-        margin-top: p2r(40);
+        margin-top: p2r(30);
       }
       .tel{
         text-align: right;
@@ -496,6 +557,9 @@ export default {
         .right{
           text-align: right;
         }
+      }
+      .sub-order-list{
+        padding-top: p2r(30);
       }
     }
   }

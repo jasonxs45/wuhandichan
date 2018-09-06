@@ -1,7 +1,7 @@
 <template>
   <div class="repair-user repair-engineer-manager">
     <!-- <userinfo type-class="rectangle"></userinfo> -->
-    <flexbox class="links">
+    <!-- <flexbox class="links">
       <flexbox-item
         v-for="(item, index) in navs"
         :key="item.path+index"
@@ -14,7 +14,7 @@
           <p class="text">{{item.text}}</p>
         </router-link>
       </flexbox-item>
-    </flexbox>
+    </flexbox> -->
     <div class="content">
       <div v-if="(engineer[stateType].orders && engineer[stateType].orders.length < 1)|| !engineer[stateType].orders" class="no-data">
         <img src="static/images/repairnodata.png" alt="" />
@@ -44,7 +44,7 @@
           <Split type="line"/>
           <flexbox class="engineer">
             <flexbox-item class="name">
-              联系人：{{item.Name}}
+              施工单位：{{item.CompanyName}}{{item.BuilderName}}
             </flexbox-item>
             <flexbox-item class="tel">
               <a :href="`tel:${item.Tel}`" @click.stop>{{item.Tel}}</a>
@@ -159,9 +159,6 @@ export default {
         name: 'repairengineermanagerdetail',
         params: {
           id
-        },
-        query: {
-          type: this.stateType
         }
       })
     }
@@ -216,10 +213,13 @@ export default {
          }
        }
      }
+     & + .content{
+       height: calc(100% - 1.7rem);
+     }
    }
    .content{
      width: 100%;
-     height: calc(100% - 1.7rem);
+     height: 100%;
      background: $background-color;
      overflow-y: auto;
      padding: p2r($base-padding);
@@ -270,7 +270,7 @@ export default {
         line-height: 1.5;
       }
       .line{
-        margin-top: p2r(40);
+        margin-top: p2r(20);
       }
       .engineer{
         margin-top: p2r(20);

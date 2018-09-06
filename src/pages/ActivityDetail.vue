@@ -79,7 +79,7 @@
               </dl>
             </section>
             <!-- 参与人数 -->
-            <section v-if="usedActivity.MaxNum>1||usedActivity.NeedInfo" class="section participant">
+            <section v-if="usedActivity.MaxNum>1" class="section participant">
               <flexbox class="controller">
                 <flexbox-item class="title">参与人数</flexbox-item>
                 <flexbox-item class="cells">
@@ -402,15 +402,15 @@ export default {
         }
       }
       let check = this.extraInfos.participant.every((item, index) => {
-        if (!item.name.match(NAME_REG)) {
+        if (this.usedActivity.MaxNum > 1 && !item.name.match(NAME_REG)) {
           window.$alert(`请填写参与者${index + 1}正确格式的姓名`)
           return item.name.match(NAME_REG)
         }
-        if (this.usedActivity.NeedTel && !item.tel.match(TEL_REG)) {
+        if (this.usedActivity.MaxNum > 1 && this.usedActivity.NeedTel && !item.tel.match(TEL_REG)) {
           window.$alert(`请填写参与者${index + 1}正确格式的电话号码`)
           return item.tel.match(TEL_REG)
         }
-        if (this.usedActivity.NeedInfo && !ID_CHECK(item.id)) {
+        if (this.usedActivity.MaxNum > 1 && this.usedActivity.NeedInfo && !ID_CHECK(item.id)) {
           window.$alert(`请填写参与者${index + 1}正确的身份证号码`)
           return ID_CHECK(item.id)
         }

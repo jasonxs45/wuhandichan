@@ -16,6 +16,7 @@ import modify from './modify'
 import guide from './guide'
 import advise from './advise'
 import repair from './repair'
+import onlineservice from './onlineservice'
 import { webRoot } from '../data'
 let openid = ''
 const BASE_URL = '/Mobile-PostAPI'
@@ -109,6 +110,7 @@ let api = {
   guide,
   advise,
   repair,
-  thirdserviceprogress
+  thirdserviceprogress,
+  onlineservice
 }
 export default api

@@ -17,7 +17,22 @@
       </x-select>
     </div>
     <div class="panel">
-      <div class="tags">
+      <div v-if="form.house" class="tags">
+        <flexbox justify="justify">
+          <h3 class="title">选择房间</h3>
+          <div class="selected-span" @click="toggleTags('roomAll')">
+            <span :class="selectedRoom ? 'color' : ''" class="text">{{selectedRoomName || '全部'}}</span>
+            <Icon :class="roomAll?'show':'hide'" class="arrow-right" name="arrow-right1"/>
+          </div>
+        </flexbox>
+        <flexbox wrap="wrap" class="tags-row" :class="roomAll ? 'show': 'hide'">
+          <label v-for="(item, index) in rooms" :key="'room-'+index+item.ID" class="radio-tag">
+            <input v-model="selectedRoom" class="radio" type="radio" name="room" :value="item.ID">
+            <span class="text">{{item.Name}}</span>
+          </label>
+        </flexbox>
+      </div>
+      <div v-if="selectedRoom" class="tags">
         <flexbox justify="justify">
           <h3 class="title">选择部位</h3>
           <div class="selected-span" @click="toggleTags('partAll')">
@@ -62,13 +77,14 @@
           </label>
         </flexbox>
       </div>
-      <div v-if="selectedPartName" class="selected-info">
+      <div v-if="selectedRoomName" class="selected-info">
         <Split type="line"/>
         <flexbox align="center" justify="justify">
           <h3 class="head">报修问题：</h3>
           <div class="body">
             <div class="selected-tag">
-              <span class="text">{{selectedPartName}}</span>
+              <span class="text">{{selectedRoomName}}</span>
+              <span v-if="selectedPartName" class="text">--{{selectedPartName}}</span>
               <span v-if="selectedPartResName" class="text">-{{selectedPartResName}}</span>
               <span v-if="selectedTroubleName" class="text">-{{selectedTroubleName}}</span>
             </div>
@@ -153,6 +169,8 @@ export default {
       houses: [],
       tagsState: 0,
       troubleGroup: {},
+      roomAll: false,
+      selectedRoom: '',
       partAll: false,
       selectedPart: '',
       partresAll: false,
@@ -172,8 +190,17 @@ export default {
     state () {
       return this.$store.state.userInfo.state
     },
+    rooms () {
+      let house = this.houses.find(item => item.ID === this.form.house.value)
+      if (house) {
+        return this.troubleGroup.Room.filter(item => item.HuxingID === house.HuxingID)
+      } else {
+        return this.troubleGroup.Room
+      }
+    },
     parts () {
-      return this.troubleGroup.Part
+      let rid = this.selectedRoom
+      return this.troubleGroup.Part.filter(item => item.RoomID === rid)
     },
     partres () {
       let pid = this.selectedPart
@@ -183,9 +210,20 @@ export default {
       let pid = this.selectedPartRes
       return this.troubleGroup.Trouble.filter(item => item.PartResID === pid)
     },
+    selectedRoomName () {
+      let name = ''
+      if (this.rooms && this.rooms.length > 0 && this.selectedRoom) {
+        if (this.rooms.find(item => item.ID === this.selectedRoom)) {
+          name = this.rooms.find(item => item.ID === this.selectedRoom).Name
+        } else {
+          name = ''
+        }
+      }
+      return name
+    },
     selectedPartName () {
       let name = ''
-      if (this.parts && this.parts.length > 0 && this.selectedPart) {
+      if (this.rooms && this.parts.length > 0 && this.selectedPart) {
         if (this.parts.find(item => item.ID === this.selectedPart)) {
           name = this.parts.find(item => item.ID === this.selectedPart).Name
         } else {
@@ -296,6 +334,12 @@ export default {
         })
         return
       }
+      if (!this.selectedRoom) {
+        window.$alert({
+          content: '请选择房间'
+        })
+        return
+      }
       if (!this.selectedPart) {
         window.$alert({
           content: '请选择报修部位'
@@ -320,11 +364,17 @@ export default {
         })
         return
       }
-      if (!this.form.name.match(NAME_REG)) {
+      if (!this.form.name.trim()) {
         window.$alert({
-          content: '请填写正确格式的姓名（2-6位中文字）'
+          content: '姓名不能为空！'
         })
         return
+      }
+      if (!this.form.name.match(NAME_REG)) {
+        // window.$alert({
+        //   content: '请填写正确格式的姓名（2-6位中文字）'
+        // })
+        // return
       }
       if (!this.form.tel.match(TEL_REG)) {
         window.$alert({
@@ -346,7 +396,7 @@ export default {
       .then(({res, index}) => {
         if (res.data.IsSuccess) {
           window.$alert({
-            title: '恭喜您！',
+            title: '提示',
             content: '提交成功！',
             yes () {
               _self.$router.push({
@@ -414,10 +464,12 @@ export default {
     .title{
       font-size: p2r(26);
       color: $text-sub-color;
+      padding: p2r(10) 0;
     }
     .selected-span{
       text-align: right;
       font-size: 0;
+      padding: p2r(10) 0 p2r(10) p2r(20);
       .text{
         display: inline-block;
         font-size: p2r(26);

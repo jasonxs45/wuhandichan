@@ -65,6 +65,7 @@ const GuideDetail = r => require.ensure([], () => r(require('pages/GuideDetail')
 const PageNotFound = r => require.ensure([], () => r(require('pages/PageNotFound')), 'PageNotFound')
 const Wait = r => require.ensure([], () => r(require('pages/Wait')), 'Wait')
 const Menu = r => require.ensure([], () => r(require('pages/Menu')), 'Menu')
+const OnlineCustomerService = r => require.ensure([], () => r(require('pages/OnlineCustomerService')), 'OnlineCustomerService')
 export default [
   // 主页
   {
@@ -533,6 +534,15 @@ export default [
     component: GuideDetail,
     meta: {
       title: '服务指南'
+    }
+  },
+  // 在线客服
+  {
+    path: '/onlinecustomerservice',
+    name: 'onlinecustomerservice',
+    component: OnlineCustomerService,
+    meta: {
+      title: '在线客服'
     }
   },
   {

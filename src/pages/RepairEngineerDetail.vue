@@ -7,9 +7,9 @@
           <flexbox-item class="house-name">
             {{repair.ProjectName + repair.StageName}} {{repair.Building}} - {{repair.Unit}}-{{repair.HouseNo}}
           </flexbox-item>
-          <flexbox-item class="date">
+          <!-- <flexbox-item class="date">
             {{repair.AddTime|formatdate}}
-          </flexbox-item>
+          </flexbox-item> -->
         </flexbox>
         <div class="info">{{repair.Part}}</div>
         <div class="desc">{{repair.Content}}</div>
@@ -31,7 +31,7 @@
             </img-cell>
           </img-row>
         </div>
-        <template v-if="repair.Name">
+        <template v-if="repair.Name && repair.State > 9">
           <flexbox>
             <flexbox-item class="engineer-name">
               联系人：{{repair.Name}}
@@ -41,6 +41,12 @@
             </flexbox-item>
           </flexbox>
         </template>
+        <flexbox class="submit-date">
+          <flexbox-item class="tit">提交时间：</flexbox-item>
+          <flexbox-item class="date">
+            {{repair.AddTime|formatdate}}
+          </flexbox-item>
+        </flexbox>
         <div v-if="repair.State === 1" class="current">
           <Split style="margin-bottom: 15px" type="line"/>
           <p class="title">请上传整改后的照片</p>
@@ -48,18 +54,20 @@
             :group="uploadImgs"
             :canUpload="true"
             class="imgs"
+            @on-upload="uploadImg"
           >
             <img-cell
               v-for="(item, index) in uploadImgs"
               :index="index"
               :canUpload="true"
+              :del="true"
               :group="uploadImgs"
               :key="'uploadImg-'+index"
             >
               <Fitimg :src="item" @on-click="previewImg(item, uploadImgs)"/>
             </img-cell>
           </img-row>
-          <x-textarea v-model="desc" class="bakinfo" placeholder="请添加整改备注"></x-textarea>
+          <x-textarea v-model="desc" class="bakinfo" placeholder="请添加维修整改情况"></x-textarea>
         </div>
       </div>
       <div v-if="detailList.length > 0" class="sub-order-list">
@@ -75,6 +83,7 @@
           </flexbox>
           <div class="desc">{{item.Desc}}</div>
           <div v-if="item.Images.length > 0" class="more-detail">
+            <p class="title">整改后</p>
             <img-row
               :group="item.Images"
               :canUpload="false"
@@ -100,7 +109,7 @@
               {{item.AddTime|formatdate}}
             </flexbox-item>
           </flexbox>
-          <flexbox v-if="repair.State > 1">
+          <flexbox v-if="repair.State === 9">
             <flexbox-item class="builder-name">
               预计完成时间：
             </flexbox-item>
@@ -108,7 +117,7 @@
               {{item.ExpectTime|formatdate}}
             </flexbox-item>
           </flexbox>
-          <flexbox v-if="item.FinishTime">
+          <flexbox v-if="repair.State === 9 && item.FinishTime">
             <flexbox-item class="builder-name">
               完成时间：
             </flexbox-item>
@@ -126,7 +135,7 @@
           </flexbox>
         </div>
       </div>
-      <div v-if="currentProgress && currentProgress.length > 0" class="progress-wrapper">
+      <div v-if="currentProgress && currentProgress.length === -1" class="progress-wrapper">
         <div class="progress">
           <flexbox
             v-for="(item, index) in currentProgress"
@@ -148,19 +157,40 @@
       </div>
     </div>
     <div :class="['btns', single ? 'single' : '']">
-      <Btn
-        v-if="repair.State === 1"
-        type="primary"
-        text="完成维修"
-        size="lar"
-        @click="finishOrder(repair.ID)"
-      />
+      <div class="double">
+        <Btn
+          v-if="repair.State === 1"
+          type="primary"
+          text="完成维修"
+          size="lar"
+          @click="finishOrder(repair.ID)"
+        />
+        <Btn
+          v-if="repair.State === 1"
+          type="base"
+          text="拒绝"
+          size="lar"
+          @click="toggleTreatedRefuse"
+        />
+      </div>
       <Btn
         type="default"
         size="lar"
         text="返回"
         @click="back"
       />
+    </div>
+    <div class="refuse">
+      <transition name="fade">
+        <div v-show="showTreatedRefuse" class="bg" @click="toggleTreatedRefuse"></div>
+      </transition>
+      <transition name="slide-up">
+        <div v-show="showTreatedRefuse" class="refuse-wrapper">
+          <x-textarea v-model="refuseTreatedReason" placeholder="请填写拒绝的理由"></x-textarea>
+          <Btn type="primary" text="提交" size="lar" @click="refuseTreated"/>
+          <Btn type="default" text="取消" size="lar" @click="toggleTreatedRefuse"/>
+        </div>
+      </transition>
     </div>
   </div>
 </template>
@@ -204,7 +234,9 @@ export default {
       id: '',
       uploadImgs: [],
       content: null,
-      desc: ''
+      desc: '',
+      showTreatedRefuse: false,
+      refuseTreatedReason: ''
     }
   },
   computed: {
@@ -241,7 +273,7 @@ export default {
       return arr
     },
     single () {
-      return this.repair.State !== 0
+      return this.repair.State !== 1
     },
     currentProgress () {
       return this.content
@@ -313,6 +345,9 @@ export default {
         urls
       })
     },
+    uploadImg (res) {
+      this.uploadImgs.push(res)
+    },
     back () {
       this.$router.replace({
         name: 'repairengineer',
@@ -327,11 +362,11 @@ export default {
       //   window.$alert('请上传整改后的照片')
       //   return
       // }
-      let desc = this.desc
-      if (!desc.trim()) {
-        window.$alert('整改备注不能为空')
-        return
-      }
+      // let desc = this.desc
+      // if (!desc.trim()) {
+      //   window.$alert('请添加维修整改情况')
+      //   return
+      // }
       let index = window.$confirm({
         title: '提示',
         content: '确定完成吗？',
@@ -349,6 +384,45 @@ export default {
                     name: 'repairengineer',
                     params: {
                       state: 'treated'
+                    }
+                  })
+                }
+              })
+            } else {
+              window.$alert(res.data.Message)
+            }
+          })
+          .catch(err => {
+            console.log(err)
+          })
+        }
+      })
+    },
+    toggleTreatedRefuse () {
+      this.showTreatedRefuse = !this.showTreatedRefuse
+    },
+    refuseTreated () {
+      if (!this.refuseTreatedReason.trim()) {
+        window.$alert('请填写拒绝的理由')
+        return
+      }
+      let index = window.$confirm({
+        title: '提示',
+        content: '确定拒绝吗？',
+        btns: ['取消', '确定'],
+        yes: () => {
+          window.$close(index)
+          api.repair.engineer.refuse(this.id, this.refuseTreatedReason)
+          .then(({res, index}) => {
+            if (res.data.IsSuccess) {
+              window.$alert({
+                title: '提示',
+                content: '拒绝申请已提交！',
+                yes: () => {
+                  this.$router.push({
+                    name: 'repairengineer',
+                    params: {
+                      state: 'treating'
                     }
                   })
                 }
@@ -405,6 +479,13 @@ export default {
         font-size: p2r(24);
         line-height: p2r(28 * 1.7);
         color: $thr-color;
+      }
+      .submit-date{
+        margin-top: p2r(30);
+        .tit{
+          color: $text-color;
+          line-height: p2r(28 * 1.7);
+        }
       }
       .info{
         background: $primary-color;
@@ -535,6 +616,10 @@ export default {
         }
         .more-detail{
           margin: p2r(10) p2r(-10) 0;
+          .title{
+            font-size: p2r(26);
+            padding:p2r(20) p2r(10);
+          }
           .split{
             margin-top: p2r(30);
           }
@@ -650,18 +735,27 @@ export default {
     }
   }
   &>.btns{
-    position: relative;
-    margin-top: p2r(-300);
+    position: fixed;
+    width: 100%;
+    bottom:0;
     background: $background-color;
-    padding:p2r(30) 0;
+    padding: 0 0 p2r(30);
+    z-index:1;
     &.single{
       margin-top: p2r(-180);
     }
     .btn{
       margin-top:p2r(30);
-      font-size: p2r(30);
-      &.inline{
-        width: p2r(280);
+      font-size: p2r(28);
+    }
+    .double{
+      display: flex;
+      width: p2r(580);
+      margin: p2r(20) auto 0;
+      justify-content: space-between;
+      .btn{
+        width: 47%;
+        margin:0;
       }
     }
   }
@@ -695,6 +789,7 @@ export default {
       }
       .btn{
         margin: p2r(20) auto;
+        font-size: p2r(28);
       }
     }
   }

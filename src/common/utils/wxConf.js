@@ -21,21 +21,24 @@ let wxConf = {
     let _self = this
     api.getAuth().then((res) => {
       if (res.data.IsSuccess) {
-        if (store.state.global.wxReady !== true) {
-          wx.config({
-            debug: false,
-            appId: res.data.Data.AppId,
-            timestamp: res.data.Data.Timestamp,
-            nonceStr: res.data.Data.NonceStr,
-            signature: res.data.Data.Signature,
-            jsApiList: this.apilist
-          })
+        wx.config({
+          debug: false,
+          appId: res.data.Data.AppId,
+          timestamp: res.data.Data.Timestamp,
+          nonceStr: res.data.Data.NonceStr,
+          signature: res.data.Data.Signature,
+          jsApiList: this.apilist
+        })
+        if (!store.state.global.wxReady) {
           wx.ready(() => {
             store.state.global.wxReady = true
             wx.onMenuShareAppMessage(_self.shareData)
             wx.onMenuShareTimeline(_self.shareData)
             wx.onMenuShareQQ(_self.shareData)
+            cb && cb()
           })
+        } else {
+          cb && cb()
         }
       } else {
         location.href = res.data.Data
@@ -43,6 +46,8 @@ let wxConf = {
     }).catch((err) => {
       console.log(err)
     })
+    // if (store.state.global.wxReady !== true) {
+    // }
   },
   openMap (opt) {
     wx.openLocation(opt)

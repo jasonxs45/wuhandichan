@@ -7,9 +7,9 @@
           <flexbox-item class="house-name">
             {{repair.ProjectName+repair.StageName}} {{repair.Building}} - {{repair.Unit}}-{{repair.HouseNo}}
           </flexbox-item>
-          <flexbox-item class="date">
+          <!-- <flexbox-item class="date">
             {{repair.AddTime|formatdate}}
-          </flexbox-item>
+          </flexbox-item> -->
         </flexbox>
         <div class="info">{{repair.Part}}</div>
         <div class="desc">{{repair.Content}}</div>
@@ -35,6 +35,12 @@
           </flexbox-item>
           <flexbox-item class="tel">
             <a :href="`tel:${repair.Tel}`" @click.stop>{{repair.Tel}}</a>
+          </flexbox-item>
+        </flexbox>
+        <flexbox class="submit-date">
+          <flexbox-item class="tit">提交时间：</flexbox-item>
+          <flexbox-item class="date">
+            {{repair.AddTime|formatdate}}
           </flexbox-item>
         </flexbox>
         <!-- 工程师管理详细记录 -->
@@ -67,7 +73,7 @@
                   {{item.AddTime|formatdate}}
                 </flexbox-item>
               </flexbox>
-              <flexbox v-if="repair.State > 1">
+              <flexbox v-if="repair.State > 9">
                 <flexbox-item class="builder-name">
                   预计完成时间：
                 </flexbox-item>
@@ -75,7 +81,7 @@
                   {{item.ExpectTime|formatdate}}
                 </flexbox-item>
               </flexbox>
-              <flexbox v-if="item.FinishTime">
+              <flexbox v-if="repair.State > 9 && item.FinishTime">
                 <flexbox-item class="builder-name">
                   完成时间：
                 </flexbox-item>
@@ -119,17 +125,17 @@
     <div class="btns" :class="single ? 'single' : ''">
       <!-- 待分配 -->
       <flexbox v-if="repair.State === 0" justify="justify" class="three-btn">
-        <Btn type="primary" size="mini" text="分配" @click="toggleDispatch"/>
-        <Btn type="primary" size="mini" text="编辑" @click="toggleReWrite"/>
-        <Btn type="primary" size="mini" text="取消" @click="toggleRefuse"/>
+        <Btn type="primary" size="mini" text="分配任务" @click="openDispatch"/>
+        <Btn type="primary" size="mini" text="重新分配" @click="toggleReWrite"/>
+        <Btn type="primary" size="mini" text="不受理" @click="toggleRefuse"/>
       </flexbox>
       <!-- 已处理 -->
       <flexbox v-if="repair.State === 2" class="two-btn">
         <flexbox-item>
-          <Btn type="primary" size="mini" text="通过" @click="passTreated"/>
+          <Btn type="primary" size="mini" text="维修通过" @click="passTreated"/>
         </flexbox-item>
         <flexbox-item style="text-align:right">
-          <Btn type="base" size="mini" text="驳回" @click="toggleTreatedRefuse"/>
+          <Btn type="base" size="mini" text="拒绝通过" @click="toggleTreatedRefuse"/>
         </flexbox-item>
       </flexbox>
       <Btn type="default" size="lar" text="返回" @click="back" />
@@ -140,7 +146,7 @@
       </transition>
       <transition name="slide-up">
         <div v-show="showRefuse" class="refuse-wrapper">
-          <x-textarea v-model="refuseReason" placeholder="请填写取消的理由"></x-textarea>
+          <x-textarea v-model="refuseReason" placeholder="请填写不受理的理由"></x-textarea>
           <Btn type="primary" text="提交" size="lar" @click="submitRefuse"/>
           <Btn type="default" text="取消" size="lar" @click="toggleRefuse"/>
         </div>
@@ -161,7 +167,7 @@
     <transition name="slide-in-right">
       <div v-show="showDispatch" class="dispatch">
         <div class="dispatch-wrapper">
-          <x-select v-model="selectedEngineer" placeholder="选择重新分配的工程师">
+          <!-- <x-select v-model="selectedEngineer" placeholder="选择重新分配的工程师">
             <x-option
               v-for="(engineer, index) in engineers"
               :key="'engineer-' + index"
@@ -173,12 +179,12 @@
                 <flexbox-item class="right"></flexbox-item>
               </flexbox>
             </x-option>
-          </x-select>
+          </x-select> -->
           <x-textarea v-model="allotReason" placeholder="请填写分配原因"></x-textarea>
         </div>
         <div class="btns">
           <Btn type="primary" text="确定" size="lar" @click="allotEngineer"/>
-          <Btn type="default" text="取消" size="lar" @click="toggleDispatch"/>
+          <Btn type="default" text="取消" size="lar" @click="closeDispatch"/>
         </div>
       </div>
     </transition>
@@ -463,12 +469,11 @@ export default {
         console.log(err)
       })
     },
+    _genEngineer () {
+      return api.repair.manager.getEngineers(this.id)
+    },
     getEngineers (cb) {
-      if (this.engineers.length > 0) {
-        return
-      }
-      api.repair.manager.getEngineers(this.id)
-      .then(({res, index}) => {
+      this._genEngineer().then(({res, index}) => {
         if (res.data.IsSuccess) {
           let engineers = res.data.Data
           this.engineers = engineers
@@ -538,14 +543,30 @@ export default {
     toggleRefuse () {
       this.showRefuse = !this.showRefuse
     },
-    toggleDispatch () {
+    openDispatch () {
       this.getEngineers(engineers => {
         if (engineers.length < 1) {
           window.$alert('此报修问题尚未设置施工人员')
         } else {
-          this.showDispatch = !this.showDispatch
+          this.selectedEngineer = {
+            value: engineers[0].ID,
+            name: engineers[0].CompanyName
+          }
+          let index = window.$confirm({
+            title: '提示',
+            content: `是否分配给 ${this.selectedEngineer.name} ？`,
+            yes: () => {
+              window.$close(index)
+              this.allotEngineer()
+            }
+          })
+          // this.showDispatch = true
         }
       })
+      // this.showDispatch = !this.showDispatch
+    },
+    closeDispatch () {
+      this.showDispatch = false
     },
     toggleReWrite () {
       if ((this.troubleGroup.Part && this.troubleGroup.Part.length < 0) || !this.troubleGroup.Part) {
@@ -562,41 +583,47 @@ export default {
     // 取消报修单
     submitRefuse () {
       if (!this.refuseReason.trim()) {
-        window.$alert('请填写取消理由')
+        window.$alert('请填写不受理的理由')
         return
       }
-      api.repair.manager.refuse(this.id, this.refuseReason)
-      .then(({res, index}) => {
-        if (res.data.IsSuccess) {
-          let index = window.$alert({
-            content: '此单已取消！',
-            yes: () => {
-              window.$close(index)
-              this.$router.replace({
-                name: 'repairmanager',
-                params: {
-                  state: 'untreated'
-                }
-              })
-            }
-          })
-        } else {
-          window.$alert(res.data.Message)
+      let index = window.$confirm({
+        title: '提示',
+        content: '确定不受理吗？',
+        yes: () => {
+          window.$close(index)
+          api.repair.manager.refuse(this.id, this.refuseReason)
+            .then(({res, index}) => {
+              if (res.data.IsSuccess) {
+                let index1 = window.$alert({
+                  content: '不受理成功！',
+                  yes: () => {
+                    window.$close(index1)
+                    this.$router.replace({
+                      name: 'repairmanager',
+                      params: {
+                        state: 'untreated'
+                      }
+                    })
+                  }
+                })
+              } else {
+                window.$alert(res.data.Message)
+              }
+            })
+            .catch(err => {
+              console.log(err)
+            })
         }
-      })
-      .catch(err => {
-        console.log(err)
       })
     },
     // 分配工程师处理
     allotEngineer () {
       if (!this.selectedEngineer.value && this.selectedEngineer.value !== 0) {
         window.$alert('请选择分配的工程师')
-        return
       }
       if (!this.allotReason) {
-        window.$alert('请填写分配原因')
-        return
+        // window.$alert('请填写分配原因')
+        // return
       }
       let _self = this
       api.repair.manager.allot(this.id, this.selectedEngineer.value, this.allotReason)
@@ -646,12 +673,22 @@ export default {
       api.repair.manager.reWrite(this.id, this.selectedTrouble)
       .then(({res, index}) => {
         if (res.data.IsSuccess) {
-          let index = window.$alert({
-            content: '编辑成功！',
-            yes: () => {
-              window.$close(index)
-              this.toggleReWrite()
-              this.getDetail()
+          this.getEngineers(engineers => {
+            if (engineers.length < 1) {
+              window.$alert('此报修问题尚未设置施工人员')
+            } else {
+              this.selectedEngineer = {
+                value: engineers[0].ID,
+                name: engineers[0].CompanyName
+              }
+              let index = window.$confirm({
+                title: '提示',
+                content: `是否分配给 ${this.selectedEngineer.name} ？`,
+                yes: () => {
+                  window.$close(index)
+                  this.allotEngineer()
+                }
+              })
             }
           })
         } else {
@@ -661,6 +698,13 @@ export default {
       .catch(err => {
         console.log(err)
       })
+      // let index = window.$confirm({
+      //   title: '提示',
+      //   content: '是否确认重新分配？',
+      //   yes: () => {
+      //     window.$close(index)
+      //   }
+      // })
     },
     // 通过已处理
     passTreated () {
@@ -752,7 +796,7 @@ export default {
   }
   .repair-detail-wrapper{
     min-height: 100vh;
-    padding-bottom: p2r(340);
+    padding-bottom: p2r(320);
     background: $background-color;
     &.single{
       min-height: 100vh;
@@ -775,6 +819,13 @@ export default {
         font-size: p2r(24);
         line-height: p2r(28 * 1.7);
         color: $thr-color;
+      }
+      .submit-date{
+        margin-top: p2r(15);
+        .tit{
+          color: $text-color;
+          line-height: p2r(28 * 1.7);
+        }
       }
       .info{
         background: $primary-color;
@@ -975,15 +1026,23 @@ export default {
     }
   }
   &>.btns{
-    position: relative;
     margin-top: p2r(-300);
-    // background: #fff;
+    padding: p2r(30) 0;
+    position: fixed;
+    width:100%;
+    bottom:0;
+    left:0;
+    background: $background-color;
+    z-index: 1;
     &.single{
       margin-top: p2r(-150);
     }
     .three-btn{
       width: p2r(590);
       margin: p2r(30) auto;
+      .btn{
+        font-size: p2r(26);
+      }
     }
     .two-btn{
       width: p2r(590);
@@ -1022,6 +1081,7 @@ export default {
         font-size: p2r(26);
       }
       .btn{
+        font-size: p2r(28);
         margin: p2r(20) auto;
       }
     }
@@ -1192,6 +1252,7 @@ export default {
       left: 0;
       padding-bottom: p2r($base-padding);
       .btn{
+        font-size: p2r(28);
         margin-top: p2r($base-padding);
         margin-bottom: p2r($base-padding);
         &:first-child{

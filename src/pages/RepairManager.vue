@@ -43,11 +43,11 @@
           <Split type="line"/>
           <flexbox class="engineer">
             <flexbox-item class="name">
-              工程师：{{item.AdminName}}
+              维修管理员：{{item.AdminName}}
             </flexbox-item>
-            <flexbox-item class="tel">
+            <!-- <flexbox-item class="tel">
               <a :href="`tel:${item.AdminTel}`" @click.stop>{{item.AdminTel}}</a>
-            </flexbox-item>
+            </flexbox-item> -->
           </flexbox>
         </template>
         <template v-if="item.State === 9">

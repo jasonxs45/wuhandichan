@@ -11,11 +11,12 @@ const router = new Router({
   routes
 })
 router.beforeEach((to, from, next) => {
-  window.document.title = to.meta.title || '武汉地产'
+  window.document.title = to.meta.title || '武汉地产控股客服'
   if (process.env.NODE_ENV === 'production') {
-    wxConf.init()
+    wxConf.init(next)
+  } else {
+    next()
   }
-  next()
 })
 router.afterEach((to, from) => {
   window.$closeAll()
