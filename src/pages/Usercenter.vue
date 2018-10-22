@@ -24,6 +24,39 @@
           </flexbox-item>
         </flexbox>
       </router-link>
+      <router-link v-if="isRepairEngineer" tag="div" to="/repairengineer/treating">
+        <flexbox class="list-item" align="center">
+          <flexbox-item class="start-icon">
+            <Icon name="repair"/>
+          </flexbox-item>
+          <flexbox-item class="item-body">
+            <span class="name">在线报修（维修工程师）</span>
+            <Icon class="end-icon" name="arrow-right"/>
+          </flexbox-item>
+        </flexbox>
+      </router-link>
+      <router-link v-if="isRepairManager" tag="div" to="/repairmanager/untreated">
+        <flexbox class="list-item" align="center">
+          <flexbox-item class="start-icon">
+            <Icon name="repair"/>
+          </flexbox-item>
+          <flexbox-item class="item-body">
+            <span class="name">在线报修（物业工程师）</span>
+            <Icon class="end-icon" name="arrow-right"/>
+          </flexbox-item>
+        </flexbox>
+      </router-link>
+      <router-link v-if="isRepairEngineerManager" tag="div" to="/repairengineermanager/untreated">
+        <flexbox class="list-item" align="center">
+          <flexbox-item class="start-icon">
+            <Icon name="repair"/>
+          </flexbox-item>
+          <flexbox-item class="item-body">
+            <span class="name">在线报修（地产客服）</span>
+            <Icon class="end-icon" name="arrow-right"/>
+          </flexbox-item>
+        </flexbox>
+      </router-link>
     </div>
    </div>
  </div>
@@ -68,6 +101,15 @@ export default {
   computed: {
     identity () {
       return this.$store.state.userInfo.state
+    },
+    isRepairEngineer () {
+      return this.$store.state.userInfo.isRepairEngineer
+    },
+    isRepairEngineerManager () {
+      return this.$store.state.userInfo.isRepairEngineerManager
+    },
+    isRepairManager () {
+      return this.$store.state.userInfo.isRepairManager
     }
   },
   methods: {

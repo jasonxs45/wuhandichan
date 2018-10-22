@@ -6,6 +6,9 @@ const state = {
   state: null,
   house: null,
   managerType: null,
+  isRepairEngineer: false,
+  isRepairEngineerManager: false,
+  isRepairManager: false,
   markMap: [
     '未注册',
     '未绑定',
@@ -42,6 +45,9 @@ const mutations = {
     state.state = res.Identity
     state.managerType = res.SuggestAdminType
     state.house = res.Identity === 0 ? '尚未绑定房源信息' : `房源数量：${res.HouseCount}`
+    state.isRepairEngineer = res.IsRepairEngineer
+    state.isRepairEngineerManager = res.IsRepairEngineerManager
+    state.isRepairManager = res.IsRepairManager
   }
 }
 

@@ -34,7 +34,7 @@ const STATE = {
   }
 }
 let repair = {
-  list (role, state, pageindex = 1, pagesize = 10) {
+  list (role, state, pageindex = 1, pagesize = 10, building = '', unit = '', houseno = '', name = '') {
     let opt = {
       Act: 'RepairGetList',
       Data: JSON.stringify(
@@ -42,7 +42,11 @@ let repair = {
           role: ROLE[role],
           state: STATE[role][state],
           pagesize,
-          pageindex
+          pageindex,
+          building,
+          unit,
+          houseno,
+          name
         }
       )
     }

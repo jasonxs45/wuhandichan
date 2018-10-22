@@ -20,6 +20,7 @@ import Nodata from './nodata'
 import Getmore from './getmore'
 import {ImgRow, ImgCell} from './imgrow'
 import AreaPicker from './areapicker'
+import FilterBox from './filterbox'
 
 export {
   Container,
@@ -47,5 +48,6 @@ export {
   Getmore,
   ImgRow,
   ImgCell,
-  AreaPicker
+  AreaPicker,
+  FilterBox
 }

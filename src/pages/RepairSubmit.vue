@@ -84,7 +84,7 @@
           <div class="body">
             <div class="selected-tag">
               <span class="text">{{selectedRoomName}}</span>
-              <span v-if="selectedPartName" class="text">--{{selectedPartName}}</span>
+              <span v-if="selectedPartName" class="text">-{{selectedPartName}}</span>
               <span v-if="selectedPartResName" class="text">-{{selectedPartResName}}</span>
               <span v-if="selectedTroubleName" class="text">-{{selectedTroubleName}}</span>
             </div>
@@ -169,13 +169,13 @@ export default {
       houses: [],
       tagsState: 0,
       troubleGroup: {},
-      roomAll: false,
+      roomAll: true,
       selectedRoom: '',
-      partAll: false,
+      partAll: true,
       selectedPart: '',
-      partresAll: false,
+      partresAll: true,
       selectedPartRes: '',
-      troubleAll: false,
+      troubleAll: true,
       selectedTrouble: '',
       uploadedImgs: [],
       form: {
@@ -261,12 +261,20 @@ export default {
         this.checkIdentity()
       }
     },
+    selectedRoom () {
+      this.selectedPart = ''
+      this.selectedPartRes = ''
+      this.selectedTrouble = ''
+      this.partAll = true
+    },
     selectedPart () {
       this.selectedPartRes = ''
       this.selectedTrouble = ''
+      this.partresAll = true
     },
     selectedPartRes () {
       this.selectedTrouble = ''
+      this.troubleAll = true
     }
   },
   created () {
@@ -508,9 +516,10 @@ export default {
         .selected-tag{
           display: inline-block;
           background: $primary-color;
-          height: p2r(60);
-          line-height: p2r(60);
-          padding:0 p2r(10);
+          // height: p2r(60);
+          // line-height: p2r(60);
+          line-height: 1.5;
+          padding: p2r(10);
           border-radius: p2r(4);
           font-size: 0;
           text-align: center;

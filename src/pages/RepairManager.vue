@@ -15,6 +15,7 @@
       </flexbox-item>
     </flexbox>
     <div class="content">
+      <!-- <div @click="openFilter">测试</div> -->
       <div v-if="(user[stateType].orders && user[stateType].orders.length < 1)|| !user[stateType].orders" class="no-data">
         <img src="static/images/repairnodata.png" alt="" />
         <p class="text">暂无数据</p>
@@ -67,6 +68,7 @@
         @click="list"
       />
     </div>
+    <filter-box :filterShow="showFilter" @hide="hideFilter" @confirm="confirm"></filter-box>
   </div>
 </template>
 <script>
@@ -75,7 +77,8 @@ import {
   FlexboxItem,
   Split,
   Star,
-  Getmore
+  Getmore,
+  FilterBox
 } from 'components'
 import {
   formatDate
@@ -110,13 +113,15 @@ export default {
     FlexboxItem,
     Split,
     Star,
-    Getmore
+    Getmore,
+    FilterBox
   },
   data () {
     return {
       navs,
       stateType: '',
       role: 'manager',
+      showFilter: false,
       managerInfo: {}
     }
   },
@@ -147,10 +152,42 @@ export default {
     reset () {
       this.$store.dispatch('repair/destroyed', this.role)
     },
-    list () {
-      this.$store.dispatch('repair/list', {
+    openFilter () {
+      this.showFilter = true
+    },
+    hideFilter (val) {
+      this.showFilter = val
+    },
+    confirm (val) {
+      this.listbyFilter(val)
+    },
+    listbyFilter ({building, unit, houseno, name}) {
+      this.$store.commit('repair/resetPage', {
         role: this.role,
         stateType: this.stateType
+      })
+      this.$store.dispatch('repair/filter', {
+        role: this.role,
+        stateType: this.stateType,
+        building,
+        unit,
+        houseno,
+        name,
+        reje: () => {
+          this.$router.push({
+            name: 'bind'
+          })
+        }
+      })
+    },
+    list ({building, unit, houseno, name}) {
+      this.$store.dispatch('repair/list', {
+        role: this.role,
+        stateType: this.stateType,
+        building,
+        unit,
+        houseno,
+        name
       })
     },
     stateChangeHandler () {
