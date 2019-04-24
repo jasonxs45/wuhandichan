@@ -22,7 +22,7 @@ let openid = ''
 const BASE_URL = '/Mobile-PostAPI'
 const MOCK_URL = 'https://www.easy-mock.com/mock/5abd9851597f2f6d4d73ae18/mock/'
 axios.defaults.retry = 4
-axios.defaults.retryDelay = 1000
+axios.defaults.retryDelay = 15000
 axios.interceptors.request.use(function (config) {
   return config
 }, function (error) {
@@ -56,9 +56,10 @@ let api = {
     )
   },
   // 授权
-  getAuth () {
+  getAuth (url) {
+    let redirectUrl = url
     return axios.post('/Admin-GetAuthorize', {
-      redirectUrl: location.href
+      redirectUrl
     })
   },
   // 全局查询方法

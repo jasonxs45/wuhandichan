@@ -13,7 +13,17 @@ const router = new Router({
 router.beforeEach((to, from, next) => {
   window.document.title = to.meta.title || '武汉地产控股客服'
   if (process.env.NODE_ENV === 'production') {
-    wxConf.init(next)
+    let ua = navigator.userAgent.toLowerCase()
+    let url = location.href
+    if ((/android/i).test(ua)) {
+      wxConf.init(url, () => {
+        next()
+      })
+    } else {
+      wxConf.init(url, () => {
+        next()
+      })
+    }
   } else {
     next()
   }

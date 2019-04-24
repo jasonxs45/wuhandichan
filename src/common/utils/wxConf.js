@@ -13,13 +13,13 @@ let wxConf = {
     link: '',
     imgUrl: `${webRoot}/whdcMicro/static/images/logo.png`
   },
-  init (cb) {
+  init (url, cb) {
     let ua = navigator.userAgent.toLowerCase()
     if (!(/micromessenger/i).test(ua)) {
       alert('请使用微信浏览器访问，否则部分功能可能无法使用！')
     }
     let _self = this
-    api.getAuth().then((res) => {
+    api.getAuth(url).then(res => {
       if (res.data.IsSuccess) {
         wx.config({
           debug: false,
@@ -31,10 +31,13 @@ let wxConf = {
         })
         if (!store.state.global.wxReady) {
           wx.ready(() => {
+            // alert(JSON.stringify(_self.shareData))
             store.state.global.wxReady = true
             wx.onMenuShareAppMessage(_self.shareData)
             wx.onMenuShareTimeline(_self.shareData)
             wx.onMenuShareQQ(_self.shareData)
+            wx.updateAppMessageShareData(_self.shareData)
+            wx.updateTimelineShareData(_self.shareData)
             cb && cb()
           })
         } else {
@@ -42,12 +45,17 @@ let wxConf = {
         }
       } else {
         location.href = res.data.Data
+        if ((/android/i).test(ua)) {
+          let timeout = setTimeout(() => {
+            clearTimeout(timeout)
+            location.reload()
+          }, 1500)
+        }
+        // location.reload()
       }
     }).catch((err) => {
       console.log(err)
     })
-    // if (store.state.global.wxReady !== true) {
-    // }
   },
   openMap (opt) {
     wx.openLocation(opt)
