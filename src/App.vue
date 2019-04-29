@@ -6,15 +6,7 @@
 
 <script>
 export default {
-  name: 'App',
-  created () {
-    this.getUserInfo()
-  },
-  methods: {
-    getUserInfo () {
-      return this.$store.dispatch('getInfoAsync')
-    }
-  }
+  name: 'App'
 }
 </script>
 

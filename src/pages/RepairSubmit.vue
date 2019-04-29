@@ -3,6 +3,9 @@
   <div class="panel-group">
     <div class="panel">
       <h3 class="title">选择房源</h3>
+      <div class='guide' @click='toggleGuide'>
+        报修操作说明<Icon class="icon" name="help"/>
+      </div>
       <x-select
         v-model="form.house"
         placeholder="请选择您要报修的房源"
@@ -126,6 +129,19 @@
     class="submit"
     @click="submitHandler"
   />
+  <div class='guide-box' v-show='guideShow'>
+    <div class='bg' @click='toggleGuide'></div>
+    <div class='wrapper' @click='toggleGuide'>
+      <h2 class='tit'>在线报修操作说明</h2>
+      <p class='sub-tit'>以下操作说明以报修“主卧木地板破损”为例：</p>
+      <p class='p'>第一步，“选择房间”，即选择报修项目所在的区域，例：在“选择房间”中点击“主卧”；</p>
+      <p class='p'>第二步，“选择部位”，即选择报修项目的部位，例：在“选择部位”中点击“地面（精装）”；</p>
+      <p class='p'>第三步，“选择部品”，即选择报修的部品，例：在“选择部品”中点击“木地板”；</p>
+      <p class='p'>第四步，“选择问题”，即选择报修部品的问题，例：在“选择问题”中点击“刮花、破损”；</p>
+      <p class='p'>第五步，在录入框中输入报修的具体内容详细描述，例：“主卧靠近窗台木地板破损,需维修”；并上传图片；</p>
+      <p class='p'>第六步，填写联系人姓名及联系方式并提交。</p>
+    </div>
+  </div>
 </div>
 </template>
 <script>
@@ -183,7 +199,8 @@ export default {
         desc: '',
         name: '',
         tel: ''
-      }
+      },
+      guideShow: false
     }
   },
   computed: {
@@ -260,6 +277,10 @@ export default {
       if (newVal !== 4) {
         this.checkIdentity()
       }
+      if (newVal === 3 || newVal === 4) {
+        this.getHouses()
+        this.getParts()
+      }
     },
     selectedRoom () {
       this.selectedPart = ''
@@ -281,8 +302,10 @@ export default {
     if (this.state !== 4) {
       this.checkIdentity()
     }
-    this.getHouses()
-    this.getParts()
+    if (this.state === 3 || this.state === 4) {
+      this.getHouses()
+      this.getParts()
+    }
   },
   methods: {
     checkIdentity () {
@@ -422,6 +445,9 @@ export default {
       .catch(err => {
         console.log(err)
       })
+    },
+    toggleGuide () {
+      this.guideShow = !this.guideShow
     }
   }
 }
@@ -652,6 +678,62 @@ export default {
       bottom:0;
       .btn{
         margin-top: p2r(20);
+      }
+    }
+  }
+  .guide{
+    position: absolute;
+    top: p2r(40);
+    right: p2r(30);
+    font-size: p2r(24);
+    padding: p2r(10) 0;
+    color: #666;
+    .icon{
+      font-size: p2r(30);
+      margin-left: p2r(10);
+      vertical-align: middle;
+    }
+  }
+  .guide-box{
+    .bg{
+      position: fixed;
+      top:0;
+      left:0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,.6);
+      z-index: 9999;
+    }
+    .wrapper{
+      position: fixed;
+      top: 10%;
+      left: 6%;
+      width: 88%;
+      height: 80%;
+      background: #fff;
+      z-index: 10000;
+      border-radius: 4px;
+      overflow-x: hidden;
+      overflow-y: auto;
+      padding: p2r(30);
+      -webkit-overflow-scrolling: touch;
+      .tit{
+        text-align: center;
+        font-weight: 600;
+        font-size: p2r(36);
+        margin: p2r(30) 0;
+        color: #333;
+      }
+      .sub-tit{
+        font-size: p2r(26);
+        color: #666;
+        margin: p2r(40) 0;
+      }
+      .p{
+        font-size: p2r(26);
+        color: #666;
+        margin: p2r(20) 0;
+        line-height: 1.7;
       }
     }
   }

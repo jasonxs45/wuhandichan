@@ -1,10 +1,10 @@
 import axios from 'axios'
-import wx from 'weixin-js-sdk'
+// import wx from 'weixin-js-sdk'
 import api from '../api'
 import qs from 'qs'
-import store from '@/store'
 import { webRoot } from '../data'
 // const comOpenId = 'gh_ba3ae28cdc9b'
+let wx = window.wx
 let wxConf = {
   name: 'weixin-config',
   shareData: {
@@ -29,29 +29,16 @@ let wxConf = {
           signature: res.data.Data.Signature,
           jsApiList: this.apilist
         })
-        if (!store.state.global.wxReady) {
-          wx.ready(() => {
-            // alert(JSON.stringify(_self.shareData))
-            store.state.global.wxReady = true
-            wx.onMenuShareAppMessage(_self.shareData)
-            wx.onMenuShareTimeline(_self.shareData)
-            wx.onMenuShareQQ(_self.shareData)
-            wx.updateAppMessageShareData(_self.shareData)
-            wx.updateTimelineShareData(_self.shareData)
-            cb && cb()
-          })
-        } else {
+        wx.ready(() => {
+          wx.onMenuShareAppMessage(_self.shareData)
+          wx.onMenuShareTimeline(_self.shareData)
+          wx.onMenuShareQQ(_self.shareData)
+          wx.updateAppMessageShareData(_self.shareData)
+          wx.updateTimelineShareData(_self.shareData)
           cb && cb()
-        }
+        })
       } else {
         location.href = res.data.Data
-        if ((/android/i).test(ua)) {
-          let timeout = setTimeout(() => {
-            clearTimeout(timeout)
-            location.reload()
-          }, 1500)
-        }
-        // location.reload()
       }
     }).catch((err) => {
       console.log(err)
