@@ -5,8 +5,9 @@ import App from './App'
 import router from './router'
 import store from './store'
 import layer from 'common/utils/layer'
-import wxConf from 'common/utils/wxConf'
+// import wxConf from 'common/utils/wxConf'
 import 'common/scss/layer.scss'
+// import VConsole from 'vconsole'
 ((w) => {
   w.$simplealert = opts => {
     opts = Object.assign({
@@ -66,27 +67,26 @@ import 'common/scss/layer.scss'
   w.$closeAll = layer.closeAll
 })(window)
 Vue.config.productionTip = false
+Vue.config.errorHandler = function (err, vm, info) {
+  console.log('out')
+  console.log(err)
+  console.log(vm)
+  console.log(info)
+}
 /* eslint-disable no-new */
-let url = location.href
-// if (!(/micromessenger/i).test(ua)) {
-//   alert('请使用微信浏览器访问，否则部分功能可能无法使用！')
-// }
-window.$loading('登录中')
-wxConf.init(url, () => {
-  window.$closeAll()
-  store.dispatch('getInfoAsync')
-  new Vue({
-    el: '#app',
-    router,
-    store,
-    components: { App },
-    template: '<App/>'
-  })
-})
-// new Vue({
-//   el: '#app',
-//   router,
-//   store,
-//   components: { App },
-//   template: '<App/>'
+// let url = location.href
+// wxConf.init(url, () => {
+//   new Vue({
+//     router,
+//     store,
+//     components: { App },
+//     template: '<App/>'
+//   }).$mount('#app')
 // })
+new Vue({
+  el: '#app',
+  router,
+  store,
+  components: { App },
+  template: '<App/>'
+})

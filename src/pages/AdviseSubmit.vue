@@ -215,7 +215,11 @@ export default {
 @import "~common/scss/mixins.scss";
 .advise-submit{
   padding:p2r($base-padding);
-  background: linear-gradient(#3a7bc9, $primary-color);
+  background:$primary-color;
+  height: 100vh;
+  overflow-x:hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   .top{
     position: absolute;
     width:100%;

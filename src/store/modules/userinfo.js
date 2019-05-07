@@ -26,7 +26,7 @@ const getters = {
 const actions = {
   getInfoAsync ({ state, commit }) {
     api.getWeixinInfo()
-    .then(({res, index}) => {
+    .then(res => {
       if (res.data.IsSuccess) {
         commit(types.USER_INFO, res.data.Data)
       } else {

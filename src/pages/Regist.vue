@@ -5,6 +5,7 @@
     </div>
     <div class="input-area">
       <XInput v-model="name" classType="bottom-line" placeholder="请输入您的姓名" class="fr"/>
+      <XInput v-model="id" classType="bottom-line" placeholder="请输入您的身份证号" class="fr"/>
       <flexbox class="fr">
         <flexbox-item class="code-input">
           <XInput v-model="tel" class="code" classType="bottom-line" placeholder="请输入您的手机号" />
@@ -73,6 +74,7 @@ export default {
       checked: false,
       showRule: false,
       name: '',
+      id: '',
       tel: '',
       code: '',
       hotCode: '',
@@ -132,6 +134,10 @@ export default {
         window.$alert('请填写正确格式的姓名！')
         return
       }
+      if (!this.id.trim()) {
+        window.$alert('请填写身份证号！')
+        return
+      }
       if (!this.tel.match(TEL_REG)) {
         window.$alert('请填写正确格式的电话！')
         return
@@ -140,7 +146,7 @@ export default {
       //   window.$alert('短信验证码错误！')
       //   return
       // }
-      api.regist.submit(this.name, this.tel, this.code)
+      api.regist.submit(this.name, this.tel, this.id, this.code)
       .then(({res, index}) => {
         window.$close(index)
         if (res.data.IsSuccess) {

@@ -1,16 +1,18 @@
 import axios from 'axios'
-// import wx from 'weixin-js-sdk'
+import wx from 'weixin-js-sdk'
 import api from '../api'
 import qs from 'qs'
 import { webRoot } from '../data'
+import store from '@/store'
+import router from '@/router'
 // const comOpenId = 'gh_ba3ae28cdc9b'
-let wx = window.wx
+// let wx = window.wx
 let wxConf = {
   name: 'weixin-config',
   shareData: {
     title: '武汉地产客关平台',
     desc: '欢迎使用武汉地产客关平台！',
-    link: '',
+    link: location.href,
     imgUrl: `${webRoot}/whdcMicro/static/images/logo.png`
   },
   init (url, cb) {
@@ -18,9 +20,15 @@ let wxConf = {
     if (!(/micromessenger/i).test(ua)) {
       alert('请使用微信浏览器访问，否则部分功能可能无法使用！')
     }
+    if (sessionStorage.already === 'true' && !(/android/i).test(ua)) {
+      cb && cb()
+      return
+    }
     let _self = this
+    let index1 = window.$loading('获取用户微信信息中')
     api.getAuth(url).then(res => {
       if (res.data.IsSuccess) {
+        console.log('已授权')
         wx.config({
           debug: false,
           appId: res.data.Data.AppId,
@@ -30,18 +38,48 @@ let wxConf = {
           jsApiList: this.apilist
         })
         wx.ready(() => {
+          wx.updateAppMessageShareData(_self.shareData)
+          wx.updateTimelineShareData(_self.shareData)
           wx.onMenuShareAppMessage(_self.shareData)
           wx.onMenuShareTimeline(_self.shareData)
           wx.onMenuShareQQ(_self.shareData)
-          wx.updateAppMessageShareData(_self.shareData)
-          wx.updateTimelineShareData(_self.shareData)
-          cb && cb()
+          console.log('微信ready完成')
+          // let index1 = window.$loading('获取用户微信信息中')
+          api.getWeixinInfo().then(r => {
+              window.$close(index1)
+              if (r.data.IsSuccess) {
+                if (r.data.Data.Identity === 0) {
+                  let index = window.$alert({
+                    content: '您还未注册会员，请先注册会员',
+                    yes: () => {
+                      window.$close(index)
+                      router.replace('/regist')
+                    }
+                  })
+                }
+                store.commit('USER_INFO', res.data.Data)
+                sessionStorage.already = true
+                cb && cb()
+              } else {
+                window.$alert(res.data.Message)
+              }
+            }).catch(err => {
+              window.$close(index1)
+              console.log(err)
+            })
+        })
+        wx.error(res => {
+          alert(JSON.stringify(res))
+          alert('微信信息验证失败，请刷新页面或退出重进')
         })
       } else {
+        console.log('未授权')
         location.href = res.data.Data
       }
     }).catch((err) => {
       console.log(err)
+      alert('确认登录请求发送失败')
+      window.$closeAll()
     })
   },
   openMap (opt) {
@@ -118,6 +156,8 @@ let wxConf = {
   },
   apilist: [
     'checkJsApi',
+    'updateAppMessageShareData',
+    'updateTimelineShareData',
     'onMenuShareTimeline',
     'onMenuShareAppMessage',
     'onMenuShareQQ',

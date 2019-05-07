@@ -11,13 +11,14 @@ let regist = {
     return api.globalQuery(opt)
   },
   // 提交
-  submit (Name, Tel, Code) {
+  submit (Name, Tel, CertNumber, Code) {
     let opt = {
       Act: 'MemberAdd',
       Data: JSON.stringify({
         Name,
         Tel,
-        Code
+        Code,
+        CertNumber
       })
     }
     return api.globalQuery(opt)

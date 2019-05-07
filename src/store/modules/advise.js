@@ -64,7 +64,7 @@ const actions = {
           }
         )
       } else {
-        window.$alert(res.data.Message)
+        // window.$alert(res.data.Message)
         commit(types.ADVISE_LIST,
           {
             res: res.data.Data,

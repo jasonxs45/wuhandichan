@@ -65,14 +65,15 @@ let api = {
   // 全局查询方法
   globalQuery (opt) {
     Object.assign(opt, { openid })
-    let index = window.$loading('加载中')
+    // let index = window.$loading('加载中')
+    let index = -1
     return axios.post(
       BASE_URL,
       qs.stringify(opt)
     ).then(res => {
       return new Promise((resolve, reject) => {
         if (res.status === 200) {
-          window.$close(index)
+          // window.$close(index)
           resolve({res, index})
         }
       })
@@ -94,7 +95,10 @@ let api = {
     let opt = {
       Act: 'MemberCenterData'
     }
-    return this.globalQuery(opt)
+    return axios.post(
+      BASE_URL,
+      qs.stringify(opt)
+    )
   },
   regist,
   bind,

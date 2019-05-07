@@ -19,6 +19,7 @@
       class="input"
       @change="changeHandler"
       @input="inputHandler"
+      @bluer='blurHandler'
     />
   </label>
 </template>
@@ -72,6 +73,9 @@ const input = {
     blurHandler (e) {
       this.isFocus = false
       this.$emit('on-blur', e)
+      if (/(iPhone|iPad|iPod|iOS)/i.test(navigator.userAgent)) {
+        document.activeElement.scrollIntoViewIfNeeded(true)
+      }
     }
   }
 }
