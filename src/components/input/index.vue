@@ -19,7 +19,7 @@
       class="input"
       @change="changeHandler"
       @input="inputHandler"
-      @bluer='blurHandler'
+      @blur='blurHandler'
     />
   </label>
 </template>

@@ -230,11 +230,15 @@ export default {
         if (arr.length === 1 && arr[0] === '') {
           arr = []
         } else {
-          arr = arr.map(item => webRoot + item)
+          arr = arr.map(item => {
+            item = item.includes(webRoot) ? item : webRoot + item
+            return item
+          })
         }
       } else {
         arr = []
       }
+      console.log(arr)
       return arr
     },
     detailList () {
@@ -336,8 +340,8 @@ export default {
       this.uploadImgs.push(res)
     },
     previewImg (cur, groups) {
-      let current = window.location.origin + cur
-      let urls = groups.map(item => window.location.origin + item)
+      let current = cur
+      let urls = groups
       wxConf.previewImg({
         current,
         urls

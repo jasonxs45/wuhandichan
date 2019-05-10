@@ -96,9 +96,10 @@ export default {
           title: `${this.$store.state.userInfo.nickname}申请加入武汉地产`,
           desc: '请审核身份真实有效性后进行绑定',
           link: location.origin + location.pathname + `#/bind/bindownerconfirm/type/${this.typeid}/member/${this.memberid}`,
-          imgUrl: 'http://whdc.1juke.cn/whdcMicro/static/images/logo.png'
+          imgUrl: 'https://whdc.1juke.cn/whdcMicro/static/images/logo.png'
       }
       wx.onMenuShareAppMessage(shareData)
+      wx.updateAppMessageShareData(shareData)
     },
     getRegist () {
       // let _self = this

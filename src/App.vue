@@ -1,6 +1,6 @@
 <template>
-  <div id="app">
-    <router-view :key='Date.now()'/>
+  <div v-cloak id="app">
+    <router-view/>
   </div>
 </template>
 
@@ -13,6 +13,9 @@ export default {
 <style lang="scss">
 @import "~common/scss/variables.scss";
 @import "~common/scss/mixins.scss";
+[v-cloak] {
+  display: none;
+}
 // swiper
 .swiper-pagination-bullets{
   .swiper-pagination-bullet{

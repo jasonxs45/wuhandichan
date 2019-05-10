@@ -8,6 +8,7 @@
       :readonly="readonly"
       @input="inputHandler"
       @change="changeHandler"
+      @blur='blurHandler'
       class="textarea"
     >
     </textarea>
@@ -39,6 +40,13 @@ export default {
     },
     inputHandler (e) {
       this.$emit('input', e.target ? e.target.value : e)
+    },
+    blurHandler (e) {
+      this.isFocus = false
+      this.$emit('on-blur', e)
+      if (/(iPhone|iPad|iPod|iOS)/i.test(navigator.userAgent)) {
+        document.activeElement.scrollIntoViewIfNeeded(true)
+      }
     }
   }
 }

@@ -5,7 +5,7 @@ import App from './App'
 import router from './router'
 import store from './store'
 import layer from 'common/utils/layer'
-// import wxConf from 'common/utils/wxConf'
+import wxConf from 'common/utils/wxConf'
 import 'common/scss/layer.scss'
 // import VConsole from 'vconsole'
 ((w) => {
@@ -75,18 +75,25 @@ Vue.config.errorHandler = function (err, vm, info) {
 }
 /* eslint-disable no-new */
 // let url = location.href
-// wxConf.init(url, () => {
-//   new Vue({
-//     router,
-//     store,
-//     components: { App },
-//     template: '<App/>'
-//   }).$mount('#app')
-// })
-new Vue({
-  el: '#app',
-  router,
-  store,
-  components: { App },
-  template: '<App/>'
+let url = location.href.split('#')[0]
+wxConf.init(url, () => {
+  new Vue({
+    router,
+    store,
+    components: { App },
+    template: '<App/>',
+    created () {
+      if (sessionStorage.route) {
+        this.$router.replace(sessionStorage.route)
+        sessionStorage.route = ''
+      }
+    }
+  }).$mount('#app')
 })
+// new Vue({
+//   el: '#app',
+//   router,
+//   store,
+//   components: { App },
+//   template: '<App/>'
+// })

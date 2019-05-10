@@ -343,7 +343,10 @@ export default {
         if (arr.length === 1 && arr[0] === '') {
           arr = []
         } else {
-          arr = arr.map(item => webRoot + item)
+          arr = arr.map(item => {
+            item = item.includes(webRoot) ? item : webRoot + item
+            return item
+          })
         }
       } else {
         arr = []

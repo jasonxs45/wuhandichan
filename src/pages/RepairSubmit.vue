@@ -299,6 +299,7 @@ export default {
     }
   },
   created () {
+    console.log(this.$store.state.userInfo)
     if (this.state !== 4) {
       this.checkIdentity()
     }

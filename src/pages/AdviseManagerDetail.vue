@@ -1,5 +1,5 @@
 <template>
-  <div class="advise-detail" :class="item.State === 2 || (role === '物业客服' && !item.IsMyManage) ? '' : 'manager'">
+  <div v-if="item" class="advise-detail" :class="item.State === 2 || (role === '物业客服' && !item.IsMyManage) ? '' : 'manager'">
     <div class="wrapper">
       <div
         class="title"
@@ -196,7 +196,7 @@ export default {
   data () {
     return {
       id: null,
-      item: {},
+      item: null,
       showSend: false,
       kfArr: [],
       selectedKf: '',

@@ -20,12 +20,8 @@ let wxConf = {
     if (!(/micromessenger/i).test(ua)) {
       alert('请使用微信浏览器访问，否则部分功能可能无法使用！')
     }
-    if (sessionStorage.already === 'true' && !(/android/i).test(ua)) {
-      cb && cb()
-      return
-    }
     let _self = this
-    let index1 = window.$loading('获取用户微信信息中')
+    let index1 = window.$loading('登录中')
     api.getAuth(url).then(res => {
       if (res.data.IsSuccess) {
         console.log('已授权')
@@ -57,11 +53,11 @@ let wxConf = {
                     }
                   })
                 }
-                store.commit('USER_INFO', res.data.Data)
-                sessionStorage.already = true
+                store.commit('USER_INFO', r.data.Data)
+                console.log(r.data.Data)
                 cb && cb()
               } else {
-                window.$alert(res.data.Message)
+                window.$alert(r.data.Message)
               }
             }).catch(err => {
               window.$close(index1)
@@ -70,10 +66,11 @@ let wxConf = {
         })
         wx.error(res => {
           alert(JSON.stringify(res))
-          alert('微信信息验证失败，请刷新页面或退出重进')
+          // alert('微信信息验证失败，请刷新页面或退出重进')
         })
       } else {
         console.log('未授权')
+        sessionStorage.route = location.href.split('#')[1]
         location.href = res.data.Data
       }
     }).catch((err) => {
@@ -124,12 +121,12 @@ let wxConf = {
           localId: images.localId[i],
           success (res) {
             i++
+            downloadImage(i, res.serverId)
             if (i < length) {
               setTimeout(function () {
                 upload()
-              }, 100)
+              }, 200)
             }
-            return downloadImage(i, res.serverId)
           },
           fail (res) {
             alert('上传失败' + JSON.stringify(res))
@@ -139,7 +136,7 @@ let wxConf = {
       upload()
     }
     /* 从微信服务器下载图片 */
-    function downloadImage (index, serverID) {
+    function downloadImage (index, serverID, cb) {
       return axios.post(
         webRoot + '/Mobile-wx_UploadImg', // 请求的url地址
         qs.stringify({
@@ -147,10 +144,13 @@ let wxConf = {
         })
       )
       .then(res => {
-        a(res.data)
+        let url = webRoot + res.data
+        console.log(url)
+        a(url)
       })
       .catch(err => {
         console.log(err)
+        alert('网络错误，请稍后再试')
       })
     }
   },
