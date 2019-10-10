@@ -5,8 +5,8 @@
     </div>
     <div class="input-area">
       <XInput v-model="name" classType="bottom-line" placeholder="请输入您的姓名" class="fr"/>
-      <XInput v-model="id" classType="bottom-line" placeholder="请输入您的身份证号" class="fr"/>
-      <flexbox class="fr">
+      <!-- <XInput v-model="id" classType="bottom-line" placeholder="请输入您的身份证号" class="fr"/> -->
+      <flexbox class="fr hang">
         <flexbox-item class="code-input">
           <XInput v-model="tel" class="code" classType="bottom-line" placeholder="请输入您的手机号" />
         </flexbox-item>
@@ -134,10 +134,10 @@ export default {
         window.$alert('请填写正确格式的姓名！')
         return
       }
-      if (!this.id.trim()) {
-        window.$alert('请填写身份证号！')
-        return
-      }
+      // if (!this.id.trim()) {
+      //   window.$alert('请填写身份证号！')
+      //   return
+      // }
       if (!this.tel.match(TEL_REG)) {
         window.$alert('请填写正确格式的电话！')
         return
@@ -178,6 +178,11 @@ export default {
   .logo{
     width: p2r(360);
     margin: p2r(70) auto p2r(84);
+  }
+  .hang{
+    width: p2r(680);
+    margin-left: auto;
+    margin-right: auto;
   }
   .input-area{
     text-align: center;

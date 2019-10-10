@@ -67,14 +67,7 @@ import 'common/scss/layer.scss'
   w.$closeAll = layer.closeAll
 })(window)
 Vue.config.productionTip = false
-Vue.config.errorHandler = function (err, vm, info) {
-  console.log('out')
-  console.log(err)
-  console.log(vm)
-  console.log(info)
-}
 /* eslint-disable no-new */
-// let url = location.href
 let url = location.href.split('#')[0]
 wxConf.init(url, () => {
   new Vue({

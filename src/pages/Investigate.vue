@@ -15,15 +15,18 @@
             <p class="text">{{item.Question}}<span v-if="item.Type==='多选'" class="multiple-mark">【多选】</span></p>
           </dt>
           <dd class="options">
-            <XTextarea
-              v-if="item.Type==='填空'"
-              placeholder="说点什么吧。。。"
-              :value="item.MyAnswer[0]"
-              :disabled="readonly"
-              :name="'ques'+item.ID"
-              @input="gatherAnswer"
-              @change="gatherAnswer"
-            />
+            <div v-if="item.Type==='填空'">
+              <XTextarea
+                v-if="!readonly"
+                placeholder="说点什么吧。。。"
+                :value="item.MyAnswer[0]"
+                :disabled="readonly"
+                :name="'ques'+item.ID"
+                @input="gatherAnswer"
+                @change="gatherAnswer"
+              />
+              <div v-if="readonly" class='showtext'>{{item.MyAnswer[0]}}</div>
+            </div>
             <template v-else>
               <div
                 v-for="(opt, index) in item.Answer"
@@ -35,7 +38,7 @@
                     :type="item.Type==='多选'?'checkbox':'radio'"
                     :name="'ques'+item.ID"
                     :value="opt"
-                    :checked="item.Type==='多选' ? item.MyAnswer[index] === opt : item.MyAnswer[0] === opt"
+                    :checked="item.MyAnswer.includes(opt)"
                     :disabled="readonly"
                     class="radio"
                     @input="gatherAnswer"
@@ -164,16 +167,34 @@ export default {
         return
       }
       let entries = Object.entries(this.myAnswer)
+      let ids = entries.map(item => item[0])
       let submitArr = []
+      let missArr = []
       for (let i = 0; i < this.questions.List.length; i++) {
-        if (!entries[i]) {
-          window.$alert('请填写第' + (i + 1) + '道题')
-          return
+        let obj = this.questions.List[i]
+        if (ids.includes('' + obj.ID)) {
+          submitArr.push({
+            QuestionID: obj.ID,
+            Result: entries.find(item => item[0] === '' + obj.ID)[1]
+          })
+        } else {
+          submitArr.push({
+            QuestionID: obj.ID,
+            Result: ''
+          })
+          if (obj.Type !== '填空') {
+            missArr.push({
+              sort: i,
+              num: obj.Number
+            })
+          }
         }
-        submitArr.push({
-          QuestionID: entries[i][0],
-          Result: entries[i][1]
-        })
+      }
+      if (missArr.length) {
+        let { num } = missArr[0]
+        // let type = this.questions.List[sort].Type
+        window.$alert(`请对第${num}题进行作答`)
+        return
       }
       api.investigate.save(submitArr)
       .then(({res, index}) => {
@@ -206,7 +227,7 @@ export default {
   width:100vw;
   height: 100vh;
   overflow: hidden;
-  background:lighten($primary-color, 2%) url('../../static/images/rstop.jpg') top center/100% auto no-repeat;
+  background:lighten($primary-color, 2%);
   position: relative;
   padding:p2r($base-padding*2) p2r($base-padding) p2r($base-padding);
   .panel{
@@ -322,6 +343,17 @@ export default {
           }
         }
       }
+    }
+    .showtext{
+      border-radius: 4px;
+      width:100%;
+      min-height: p2r(200);
+      display: inline-block;
+      background: lighten($primary-color, 68%);
+      padding:p2r(20);
+      margin: p2r(30) 0;
+      font-size: p2r(24);
+      color:$text-color;
     }
   }
   .btn{

@@ -8,7 +8,7 @@
       <p class="tip">* 请输入姓名</p>
       <XInput v-model="form.name" :readonly="readonly" placeholder="请输入姓名"/>
       <p class="tip">* 请输入身份证</p>
-      <XInput  v-model="form.id" :readonly="readonly" placeholder="请输入身份证"/>
+      <XInput  v-model="form.id" :readonly="user&&user.CertNumber!==''" placeholder="请输入身份证"/>
       <p class="tip">* 请输入手机号码</p>
       <XInput v-model="form.tel" :readonly="readonly" placeholder="请输入手机号码" htmlType="tel"/>
       <p class="tip">租户绑定房源，必须业主审核，<br/>请将此页面转发给业主，提醒业主审核您的家属身份。</p>
