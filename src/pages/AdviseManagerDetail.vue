@@ -324,12 +324,12 @@ export default {
     toggleSend () {
       this.showSend = !this.showSend
       if (this.showSend) {
-        this.getKf()
+        this.getKf(this.id)
       }
     },
     // 请求客服列表
-    getKf () {
-      api.advise.manager.getKf()
+    getKf (id) {
+      api.advise.manager.getKf(id)
       .then(({res, index}) => {
         if (res.data.IsSuccess) {
           this.kfArr = res.data.Data

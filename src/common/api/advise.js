@@ -52,9 +52,12 @@ let advise = {
     return api.globalQuery(opt)
   },
   manager: {
-    getKf () {
+    getKf (id) {
       let opt = {
-        'Act': 'SuggestGetAdmin'
+        'Act': 'SuggestGetAdmin',
+        Data: JSON.stringify({
+          ID: id
+        })
       }
       return api.globalQuery(opt)
     },
