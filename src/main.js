@@ -68,25 +68,25 @@ import 'common/scss/layer.scss'
 })(window)
 Vue.config.productionTip = false
 /* eslint-disable no-new */
-// let url = location.href.split('#')[0]
-// wxConf.init(url, () => {
-//   new Vue({
-//     router,
-//     store,
-//     components: { App },
-//     template: '<App/>',
-//     created () {
-//       if (sessionStorage.route) {
-//         this.$router.replace(sessionStorage.route)
-//         sessionStorage.route = ''
-//       }
-//     }
-//   }).$mount('#app')
-// })
-new Vue({
-  el: '#app',
-  router,
-  store,
-  components: { App },
-  template: '<App/>'
+let url = location.href.split('#')[0]
+wxConf.init(url, () => {
+  new Vue({
+    router,
+    store,
+    components: { App },
+    template: '<App/>',
+    created () {
+      if (sessionStorage.route) {
+        this.$router.replace(sessionStorage.route)
+        sessionStorage.route = ''
+      }
+    }
+  }).$mount('#app')
 })
+// new Vue({
+//   el: '#app',
+//   router,
+//   store,
+//   components: { App },
+//   template: '<App/>'
+// })

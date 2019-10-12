@@ -19,6 +19,22 @@ let investigate = {
       })
     }
     return api.globalQuery(opt)
+  },
+  managerlist () {
+    let opt = {
+      Act: 'ResearchGetCheck'
+    }
+    return api.globalQuery(opt)
+  },
+  pass (res, id) {
+    let opt = {
+      Act: 'ResearchCheck',
+      Data: JSON.stringify({
+        ID: id,
+        IsCheck: res
+      })
+    }
+    return api.globalQuery(opt)
   }
 }
 export default investigate
