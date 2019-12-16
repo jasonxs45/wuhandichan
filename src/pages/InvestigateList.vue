@@ -5,16 +5,10 @@
         <h4 class='title'>{{item.Title}}</h4>
         <p class='desc' style='-webkit-box-orient: vertical;'>{{item.Desc}}</p>
       </div>
-      <div class='btn no' @click="pass(false, item.ID)">
-        <p class='txt'>不通过</p>
-      </div>
-      <div class='btn yes' @click="pass(true, item.ID)">
-        <p class='txt'>通过</p>
-      </div>
     </div>
     <div v-if='list.length <= 0' class='holder'>
       <Nodata />
-      <p class='text'>暂无待审核内容</p>
+      <p class='text'>暂无内容</p>
     </div>
   </div>
 </template>
@@ -24,7 +18,7 @@ import {
   Nodata
 } from 'components'
 export default {
-  name: 'InvestigateManager',
+  name: 'InvestigateList',
   components: {
     Nodata
   },
@@ -35,7 +29,7 @@ export default {
   },
   methods: {
     getlist () {
-      api.investigate.managerlist()
+      api.investigate.invesList()
         .then(res => {
           const { IsSuccess, Message, Data: list } = res.res.data
           if (IsSuccess) {
@@ -106,6 +100,7 @@ export default {
     -webkit-line-clamp: 2;
     overflow: hidden;
     text-overflow: ellipsis;
+    margin-top: 8px;
   }
 }
 .btn{

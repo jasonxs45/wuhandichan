@@ -77,6 +77,11 @@ let entries = [
     icon: 'set',
     link: '/myinfo'
   }
+  // ,{
+  //   name: '调查问卷',
+  //   icon: 'graph',
+  //   link: '/investigatelist'
+  // }
 ]
 // 提交报修的类别
 let posRoom = [

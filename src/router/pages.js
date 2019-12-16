@@ -63,6 +63,7 @@ const MonthlyProgress = () => import('pages/MonthlyProgress')
 const ProgressDetail = () => import('pages/ProgressDetail')
 
 const Investigate = () => import('pages/Investigate')
+const InvestigateList = () => import('pages/InvestigateList')
 const InvestigateManager = () => import('pages/InvestigateManager')
 
 const MessageCenter = () => import('pages/MessageCenter')
@@ -569,6 +570,15 @@ export default [
     component: InvestigateManager,
     meta: {
       title: '待审核列表'
+    }
+  },
+  // 问卷调查列表
+  {
+    path: '/investigatelist',
+    name: 'investigatelist',
+    component: InvestigateList,
+    meta: {
+      title: '问卷调查列表'
     }
   }
 ]

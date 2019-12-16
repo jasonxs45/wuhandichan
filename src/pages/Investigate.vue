@@ -5,7 +5,40 @@
       <p class="desc">{{desc}}</p>
       <Split type="line" />
       <div class="questions">
+        <div v-show='!listShow'>
+          <h4 class='tit'>请选择身份</h4>
+          <div class='row'>
+            <div v-for='(item, index) in identitys' :key='"identity-"+index' class='radio inline'>
+              <input :checked='identityIndex === index'  class='radio-input' type='radio' name='identity' @input='onInput("identity", index)' />
+              <div class='text'>{{item.Type}}</div>
+            </div>
+          </div>
+          <div v-show='identitys[identityIndex] && identitys[identityIndex].NeedProject'>
+            <h4 class='tit'>请选择项目分期</h4>
+            <div class='row'>
+              <div v-for='(item, index) in projects' :key='"project-"+index' class='radio inline'>
+                <input :checked='projectIndex === index' class='radio-input' type='radio' name='project' @input='onInput("project", index)'/>
+                <div class='text'>{{item.Name}}</div>
+              </div>
+            </div>
+            <!-- <h4 class='tit'>请选择分期</h4>
+            <div class='row'>
+              <div v-for='(item, index) in states' :key='"state-"+index' class='radio inline'>
+                <input :checked='stateIndex === index' class='radio-input' type='radio' name='state' @input='onInput("state", index)'/>
+                <div class='text'>{{item.Name}}</div>
+              </div>
+            </div> -->
+          </div>
+          <!-- <h4 class='tit'>请选择类型</h4>
+          <div class='row'>
+            <div v-for='(item, index) in types' :key='"type-"+index' class='radio inline'>
+              <input :checked='typeIndex === index' class='radio-input' type='radio' name='type' @input='onInput("type", index)'/>
+              <div class='text'>{{item}}</div>
+            </div>
+          </div> -->
+        </div>
         <dl
+          v-show='listShow'
           v-for="(item, index1) in questions.List"
           :key="'question-'+index1"
           class="question"
@@ -56,7 +89,13 @@
         </dl>
       </div>
     </div>
-    <Btn size="lar" text="确定" @click="saveAnswer"/>
+    <div>
+      <Btn v-show='!listShow' size="lar" text="下一步" @click="next"/>
+      <div v-show='listShow' class='btns'>
+        <Btn :size="readonly?'lar':'mid'" text="上一步" @click="prev"/>
+        <Btn v-if='!readonly' size="mid" text="确定" @click="saveAnswer"/>
+      </div>
+    </div>
   </div>
 </template>
 <script>
@@ -88,8 +127,18 @@ export default {
   data () {
     return {
       id: null,
+      identitys: [],
+      identityIndex: null,
+      projects: [],
+      projectIndex: null,
+      states: [],
+      stateIndex: null,
+      types: [],
+      typeIndex: 0,
+      listShow: false,
       readonly: null,
       questions: {},
+      answers: [],
       myAnswer:{}
     }
   },
@@ -98,6 +147,22 @@ export default {
       if (this.questions.Info) {
         return this.questions.Info.Title
       }
+    },
+    identity () {
+      const { identitys, identityIndex } = this
+      return identitys[identityIndex]
+    },
+    project () {
+      const { projects, projectIndex } = this
+      return projects[projectIndex]
+    },
+    state () {
+      const { states, stateIndex } = this
+      return states[stateIndex] ? states[stateIndex].Name : ''
+    },
+    type () {
+      const { types, typeIndex } = this
+      return types[typeIndex]
     },
     desc () {
       if (this.questions.Info) {
@@ -109,23 +174,128 @@ export default {
     '$route' (to, from) {
       this.id = to.params.id
       this.getInvestigate()
+    },
+    identity (val) {
+      if (val) {
+        const { Value: Type } = val
+        const { id: QuestionID } = this
+        this.getProjects({ Type, QuestionID })
+      }
+    },
+    project (val) {
+      if (val) {
+        const { JoinedId: ID, Joined } = val
+        this.readonly = Joined
+        if (Joined) {
+          this.getAnswer({ ID })
+        } else {
+          this.questions.List = this.questions.List.map(item => {
+            item.MyAnswer = ''
+            return item
+          })
+        }
+      }
     }
   },
   created () {
     this.id = this.$route.params.id
+    // this.getProjects()
     this.getInvestigate()
   },
   methods: {
+    onInput (target, index) {
+      this[`${target}Index`] = index
+    },
+    getProjects ({ Type, QuestionID }) {
+      api.investigate.plist({ Type, QuestionID })
+        .then(r => {
+          const { data: res } = r.res
+          if (res.IsSuccess) {
+            this.projects = res.Data
+            if (this.projects[0].ID === 0 && this.projects[0].JoinedId !== 0) {
+              const ID = this.projects[0].JoinedId
+              this.getAnswer({ ID })
+            }
+          }
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    },
+    getStates (id) {
+      api.investigate.slist(id)
+        .then(r => {
+          const { data: res } = r.res
+          if (res.IsSuccess) {
+            const { stateIndex } = this
+            this.states = res.Data
+            if (stateIndex > this.states.length - 1) {
+              this.stateIndex = this.states.length - 1
+            }
+          }
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    },
+    getAnswer ({ ID }) {
+      api.investigate.getAnswer({ ID })
+        .then(r => {
+          const { data: res } = r.res
+          if (res.IsSuccess) {
+            this.answers = res.Data
+            this.readonly = true
+            this.questions.List = this.questions.List.map((item, index) => {
+              item.MyAnswer = this.answers[index].MyAnswer
+              item.MyAnswer = item.MyAnswer.split('|')
+              return item
+            })
+          }
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    },
+    prev () {
+      this.listShow = false
+    },
+    next () {
+      const { identityIndex, identitys, projectIndex } = this
+      if (identityIndex === null) {
+        window.$toast('请选择身份')
+        return
+      }
+      if (identitys[identityIndex].NeedProject) {
+        if (projectIndex === null) {
+          window.$toast('请选择项目分期')
+          return
+        }
+      }
+      this.listShow = true
+    },
     getInvestigate () {
       api.investigate.list(this.id)
       .then(({res, index}) => {
         if (res.data.IsSuccess) {
           let questions = res.data.Data
-          this.readonly = questions.Joined
+          console.log(questions)
+          let { CanJoin: canJoin, CannotJoinMsg, BindTypeList: identitys, ResearchTypeList: types } = questions
+          if (!canJoin) {
+            window.$alert({
+              title: CannotJoinMsg,
+              yes: () => {
+                this.$router.replace({name: 'investigatelist'})
+              }
+            })
+            return
+          }
+          // this.readonly = questions.Joined
           questions.List.forEach(item => {
             item.Answer = item.Answer.split('|')
-            item.MyAnswer = item.MyAnswer.split('|')
+            // item.MyAnswer = item.MyAnswer.split('|')
           })
+          this.types = types
+          this.identitys = identitys
           this.questions = questions
         } else {
           window.$alert(res.data.Message)
@@ -150,13 +320,13 @@ export default {
     },
     saveAnswer () {
       let _self = this
-      if (this.questions.Joined) {
+      if (this.readonly) {
         let index = window.$alert({
           content: '您已提交过，请勿重复提交',
           yes () {
             window.$close(index)
-            _self.$router.push({
-              name: 'usercenter'
+            _self.$router.replace({
+              name: 'investigatelist'
             })
           }
         })
@@ -196,15 +366,24 @@ export default {
         window.$alert(`请对第${num}题进行作答`)
         return
       }
-      api.investigate.save(submitArr)
+      // Answer,JoinInfo
+      const { identity, project } = this
+      const JoinInfo = {
+        BindType: identity.Value,
+        Stage: project ? project.ID : 0,
+        ResearchType: ''
+      }
+      const Answer = submitArr
+      console.log(Answer, JoinInfo)
+      api.investigate.save({ Answer, JoinInfo })
       .then(({res, index}) => {
         if (res.data.IsSuccess) {
           let index = window.$alert({
-            content: '提交成功',
+            content: res.data.Message,
             yes () {
               window.$close(index)
-              _self.$router.push({
-                name: 'usercenter'
+              _self.$router.replace({
+                name: 'investigatelist'
               })
             }
           })
@@ -223,6 +402,41 @@ export default {
 @import "~common/scss/variables.scss";
 @import "~common/scss/mixins.scss";
 @import "~common/scss/iconfont.scss";
+.row{
+  margin-left: -7.5px;
+  margin-right: -7.5px;
+}
+.tit{
+  font-size: 14px;
+  margin: 15px 0;
+}
+.radio{
+  position: relative;
+  &.inline{
+    display: inline-block;
+    margin: 7.5px;
+  }
+  &-input{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+  }
+  .text{
+    width: 100%;
+    height: 100%;
+    border: 1px solid #666;
+    color: #666;
+    transition: all .3s;
+    padding:10px 15px;
+    border-radius: 4px;
+  }
+  &-input:checked + .text{
+    background: $primary-color;
+    border-color: $primary-color;
+    color: #fff;
+  }
+}
 .investigate{
   width:100vw;
   height: 100vh;
@@ -358,6 +572,12 @@ export default {
   }
   .btn{
     margin-top: p2r(30);
+  }
+  .btns{
+    display: flex;
+    .btn{
+      margin: p2r(30);
+    }
   }
 }
 </style>

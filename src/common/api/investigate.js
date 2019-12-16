@@ -1,9 +1,46 @@
 import api from './index'
 let investigate = {
+  // 项目列表
+  plist ({ Type, QuestionID }) {
+    let opt = {
+      Act: 'GetUserProjectList',
+      Data: JSON.stringify({
+        Type,
+        QuestionID
+      })
+    }
+    return api.globalQuery(opt)
+  },
+  slist (id) {
+    let opt = {
+      Act: 'StageGetList',
+      Data: JSON.stringify({
+        S_ProjectID: id
+      })
+    }
+    return api.globalQuery(opt)
+  },
+  // 问卷列表
+  invesList () {
+    let opt = {
+      Act: 'ResearchUserGetList',
+      Data: JSON.stringify({})
+    }
+    return api.globalQuery(opt)
+  },
   // 获取问卷调查内容
-  list (ID) {
+  list (id) {
     let opt = {
       Act: 'ResearchGetInfo',
+      Data: JSON.stringify({
+        ID: id
+      })
+    }
+    return api.globalQuery(opt)
+  },
+  getAnswer ({ ID }) {
+    let opt = {
+      Act: 'GetMyAnswer',
       Data: JSON.stringify({
         ID
       })
@@ -11,11 +48,12 @@ let investigate = {
     return api.globalQuery(opt)
   },
   // 提交问卷调查内容
-  save (Answer) {
+  save ({ Answer, JoinInfo }) {
     let opt = {
       Act: 'ResearchSaveAnswer',
       Data: JSON.stringify({
-        Answer
+        Answer,
+        JoinInfo
       })
     }
     return api.globalQuery(opt)

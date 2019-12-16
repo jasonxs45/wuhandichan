@@ -16,68 +16,72 @@ let wxConf = {
     imgUrl: `${webRoot}/whdcMicro/static/images/logo.png`
   },
   init (url, cb) {
-    let ua = navigator.userAgent.toLowerCase()
-    if (!(/micromessenger/i).test(ua)) {
-      alert('请使用微信浏览器访问，否则部分功能可能无法使用！')
-    }
-    let _self = this
-    let index1 = window.$loading('登录中')
-    api.getAuth(url).then(res => {
-      if (res.data.IsSuccess) {
-        console.log('已授权')
-        wx.config({
-          debug: false,
-          appId: res.data.Data.AppId,
-          timestamp: res.data.Data.Timestamp,
-          nonceStr: res.data.Data.NonceStr,
-          signature: res.data.Data.Signature,
-          jsApiList: this.apilist
-        })
-        wx.ready(() => {
-          wx.updateAppMessageShareData(_self.shareData)
-          wx.updateTimelineShareData(_self.shareData)
-          wx.onMenuShareAppMessage(_self.shareData)
-          wx.onMenuShareTimeline(_self.shareData)
-          wx.onMenuShareQQ(_self.shareData)
-          console.log('微信ready完成')
-          // let index1 = window.$loading('获取用户微信信息中')
-          api.getWeixinInfo().then(r => {
-              window.$close(index1)
-              if (r.data.IsSuccess) {
-                if (r.data.Data.Identity === 0) {
-                  let index = window.$alert({
-                    content: '您还未注册会员，请先注册会员',
-                    yes: () => {
-                      window.$close(index)
-                      router.replace('/regist')
-                    }
-                  })
-                }
-                store.commit('USER_INFO', r.data.Data)
-                console.log(r.data.Data)
-                cb && cb()
-              } else {
-                window.$alert(r.data.Message)
-              }
-            }).catch(err => {
-              window.$close(index1)
-              console.log(err)
-            })
-        })
-        wx.error(res => {
-          alert(JSON.stringify(res))
-          // alert('微信信息验证失败，请刷新页面或退出重进')
-        })
-      } else {
-        console.log('未授权')
-        sessionStorage.route = location.href.split('#')[1]
-        location.href = res.data.Data
+    if (process.env.NODE_ENV === 'production') {
+      let ua = navigator.userAgent.toLowerCase()
+      if (!(/micromessenger/i).test(ua)) {
+        alert('请使用微信浏览器访问，否则部分功能可能无法使用！')
       }
-    }).catch((err) => {
-      console.log(err)
-      alert('确认登录请求发送失败')
-      window.$closeAll()
-    })
+      let _self = this
+      let index1 = window.$loading('登录中')
+      api.getAuth(url).then(res => {
+        if (res.data.IsSuccess) {
+          console.log('已授权')
+          wx.config({
+            debug: false,
+            appId: res.data.Data.AppId,
+            timestamp: res.data.Data.Timestamp,
+            nonceStr: res.data.Data.NonceStr,
+            signature: res.data.Data.Signature,
+            jsApiList: this.apilist
+          })
+          wx.ready(() => {
+            wx.updateAppMessageShareData(_self.shareData)
+            wx.updateTimelineShareData(_self.shareData)
+            wx.onMenuShareAppMessage(_self.shareData)
+            wx.onMenuShareTimeline(_self.shareData)
+            wx.onMenuShareQQ(_self.shareData)
+            console.log('微信ready完成')
+            // let index1 = window.$loading('获取用户微信信息中')
+            api.getWeixinInfo().then(r => {
+                window.$close(index1)
+                if (r.data.IsSuccess) {
+                  if (r.data.Data.Identity === 0) {
+                    let index = window.$alert({
+                      content: '您还未注册会员，请先注册会员',
+                      yes: () => {
+                        window.$close(index)
+                        router.replace('/regist')
+                      }
+                    })
+                  }
+                  store.commit('USER_INFO', r.data.Data)
+                  console.log(r.data.Data)
+                  cb && cb()
+                } else {
+                  window.$alert(r.data.Message)
+                }
+              }).catch(err => {
+                window.$close(index1)
+                console.log(err)
+              })
+          })
+          wx.error(res => {
+            alert(JSON.stringify(res))
+            // alert('微信信息验证失败，请刷新页面或退出重进')
+          })
+        } else {
+          console.log('未授权')
+          sessionStorage.route = location.href.split('#')[1]
+          location.href = res.data.Data
+        }
+      }).catch((err) => {
+        console.log(err)
+        alert('确认登录请求发送失败')
+        window.$closeAll()
+      })
+    } else {
+      cb && cb()
+    }
   },
   openMap (opt) {
     wx.openLocation(opt)
@@ -137,6 +141,7 @@ let wxConf = {
     }
     /* 从微信服务器下载图片 */
     function downloadImage (index, serverID, cb) {
+      console.log(webRoot, serverID)
       return axios.post(
         webRoot + '/Mobile-wx_UploadImg', // 请求的url地址
         qs.stringify({
