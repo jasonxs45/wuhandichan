@@ -294,15 +294,16 @@ export default {
       })
     },
     back () {
-      try {
-        this.$router.back()
-      } catch (err) {
+      const { lastPath } = this.$router
+      if (lastPath.replace('/', '') === '') {
         this.$router.push({
           name: 'repairengineermanager',
           params: {
             state: 'untreated'
           }
         })
+      } else {
+        this.$router.back()
       }
     },
     /* =====驳回拒绝==== */

@@ -81,7 +81,7 @@
             <flexbox-item v-if="repair.State === 3" class="state done">已完成</flexbox-item>
             <flexbox-item v-if="item.Status" class="timelimit"><span class="tag">{{item.Status}}</span></flexbox-item>
           </flexbox>
-          <div class="desc">{{item.Desc}}</div>
+          <div v-if='item.Desc' class="desc">{{item.Desc}}</div>
           <div v-if="item.Images.length > 0" class="more-detail">
             <p class="title">整改后</p>
             <img-row
@@ -236,7 +236,8 @@ export default {
       content: null,
       desc: '',
       showTreatedRefuse: false,
-      refuseTreatedReason: ''
+      refuseTreatedReason: '',
+      historyPath: ''
     }
   },
   computed: {
@@ -325,6 +326,10 @@ export default {
     this.id = this.$route.params.id
     this.getDetail()
   },
+  // beforeRouteEnter (from, to, next) {
+  //   console.log(from.path, to.path)
+  //   next()
+  // },
   methods: {
     getDetail () {
       api.repair.detail(this.id)
@@ -352,15 +357,16 @@ export default {
       this.uploadImgs.push(res)
     },
     back () {
-      try {
-        this.$router.back()
-      } catch (err) {
+      const { lastPath } = this.$router
+      if (lastPath.replace('/', '') === '') {
         this.$router.replace({
           name: 'repairengineer',
           params: {
             state: 'treating'
           }
         })
+      } else {
+        this.$router.back()
       }
     },
     // 完成总单
@@ -479,8 +485,8 @@ export default {
         line-height: 1.5;
       }
       .date{
-        flex: 0 0 p2r(200);
-        width: p2r(200);
+        flex: 0 0 p2r(240);
+        width: p2r(240);
         text-align: right;
         font-weight: 200;
         font-size: p2r(24);

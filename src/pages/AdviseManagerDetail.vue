@@ -280,22 +280,17 @@ export default {
       })
     },
     back () {
-      // console.log(this.type === '物业客服' ? 'untreated' : 'treated')
-      this.$router.replace({
-        name: 'advisemanager',
-        params: {
-          state: this.item.State === 0 ? 'untreated' : this.item.State === 1 ? 'treated' : 'finished'
-        }
-      })
-      // if (window.history.length >= 2) {
-      //   window.history.go(-1)
-      // } else {
-      //   if (window.wx) {
-      //     wxConf.closeWindow()
-      //   } else {
-      //     window.close()
-      //   }
-      // }
+      const { lastPath } = this.$router
+      if (lastPath.replace('/', '') === '') {
+        this.$router.replace({
+          name: 'advisemanager',
+          params: {
+            state: this.item.State === 0 ? 'untreated' : this.item.State === 1 ? 'treated' : 'finished'
+          }
+        })
+      } else {
+        this.$router.back()
+      }
     },
     // 受理
     accept () {

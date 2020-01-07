@@ -181,21 +181,17 @@ export default {
       })
     },
     back () {
-      this.$router.replace({
-        name: 'adviseuser',
-        params: {
-          state: 'untreated'
-        }
-      })
-      // if (window.history.length >= 2) {
-      //   window.history.go(-1)
-      // } else {
-      //   if (window.wx) {
-      //     wxConf.closeWindow()
-      //   } else {
-      //     window.close()
-      //   }
-      // }
+      const { lastPath } = this.$router
+      if (lastPath.replace('/', '') === '') {
+        this.$router.replace({
+          name: 'adviseuser',
+          params: {
+            state: 'untreated'
+          }
+        })
+      } else {
+        this.$router.back()
+      }
     },
     accept () {
       let _self = this

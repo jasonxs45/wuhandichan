@@ -12,7 +12,8 @@ const router = new Router({
 router.beforeEach((to, from, next) => {
   window.document.title = to.meta.title || '武汉地产控股客服'
   MtaH5.pgv()
-  console.log(to.path, from.path)
+  router.lastPath = from.path
+  // console.log(to.path, from.path)
   // let url = location.href.split('#')[0]
   // wxConf.init(url, () => {
   next()
