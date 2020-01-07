@@ -340,8 +340,8 @@ export default {
       this.uploadImgs.push(res)
     },
     previewImg (cur, groups) {
-      let current = cur
-      let urls = groups
+      let current = cur.includes(window.location.origin) ? cur : window.location.origin + cur
+      let urls = groups.map(item => item.includes(window.location.origin) ? item : window.location.origin + item)
       wxConf.previewImg({
         current,
         urls
@@ -390,12 +390,16 @@ export default {
       })
     },
     back () {
-      this.$router.replace({
-        name: 'repairuser',
-        params: {
-          state: 'untreated'
-        }
-      })
+      try {
+        this.$router.back()
+      } catch (err) {
+        this.$router.replace({
+          name: 'repairuser',
+          params: {
+            state: 'untreated'
+          }
+        })
+      }
     }
   }
 }

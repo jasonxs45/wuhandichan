@@ -503,8 +503,8 @@ export default {
       })
     },
     previewImg (cur, groups) {
-      let current = window.location.origin + cur
-      let urls = groups.map(item => window.location.origin + item)
+      let current = cur.includes(window.location.origin) ? cur : window.location.origin + cur
+      let urls = groups.map(item => item.includes(window.location.origin) ? item : window.location.origin + item)
       wxConf.previewImg({
         current,
         urls
@@ -535,12 +535,16 @@ export default {
       })
     },
     back () {
-      this.$router.replace({
-        name: 'repairmanager',
-        params: {
-          state: 'untreated'
-        }
-      })
+      try {
+        this.$router.back()
+      } catch (err) {
+        this.$router.replace({
+          name: 'repairmanager',
+          params: {
+            state: 'untreated'
+          }
+        })
+      }
     },
     // 弹层
     toggleRefuse () {

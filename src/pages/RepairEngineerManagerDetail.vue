@@ -285,21 +285,25 @@ export default {
         console.log(err)
       })
     },
-    previewImg (cur) {
-      let current = window.location.origin + cur
-      let urls = this.imgs.map(item => window.location.origin + item)
+    previewImg (cur, groups) {
+      let current = cur.includes(window.location.origin) ? cur : window.location.origin + cur
+      let urls = groups.map(item => item.includes(window.location.origin) ? item : window.location.origin + item)
       wxConf.previewImg({
         current,
         urls
       })
     },
     back () {
-      this.$router.push({
-        name: 'repairengineermanager',
-        params: {
-          state: 'untreated'
-        }
-      })
+      try {
+        this.$router.back()
+      } catch (err) {
+        this.$router.push({
+          name: 'repairengineermanager',
+          params: {
+            state: 'untreated'
+          }
+        })
+      }
     },
     /* =====驳回拒绝==== */
     submitRefuse () {

@@ -22,7 +22,7 @@
           />
         </div>
         <div class="step2" v-if="step===2">
-          <h3 class="title">筛选用户结果</h3>
+          <h3 class="title">请点击选择房源</h3>
           <div class="houses">
             <nodata v-if="houseInfo.length<=0">暂无数据，<br/>请确认信息是否正确！</nodata>
             <label
@@ -296,10 +296,11 @@ export default {
           }
           .flexbox {
             height: p2r(88);
-            border-radius: 4px;
+            border-radius: 40px;
             padding: 0 p2r(20);
             color: $thr-color;
-            background: lighten($thr-color, 30%);
+            border:1px solid $primary-color;
+            background: #fff;
             transition: color, background 0.2s;
             align-items:center;
             .house-name{

@@ -124,6 +124,7 @@
     </div>
   </div>
   <Btn
+    :disabled='submitting'
     text="提交"
     size="lar"
     class="submit"
@@ -200,7 +201,8 @@ export default {
         name: '',
         tel: ''
       },
-      guideShow: false
+      guideShow: false,
+      submitting: false
     }
   },
   computed: {
@@ -424,13 +426,18 @@ export default {
         Images: this.uploadedImgs.join(',')
       }
       // 提交
+      let index = window.$loading('提交中')
+      this.submitting = true
       api.repair.user.submit(opt)
       .then(({res, index}) => {
+        this.submitting = false
+        window.$close(index)
         if (res.data.IsSuccess) {
           window.$alert({
             title: '提示',
             content: '提交成功！',
             yes () {
+              window.$closeAll()
               _self.$router.push({
                 name: 'repairuser',
                 params: {
@@ -444,6 +451,8 @@ export default {
         }
       })
       .catch(err => {
+        window.$close(index)
+        this.submitting = false
         console.log(err)
       })
     },

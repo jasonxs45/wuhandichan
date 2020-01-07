@@ -182,15 +182,18 @@ export default {
       let Content = this.form.desc
       let Images = this.uploadedImgs.join(',')
       let _self = this
+      let index = window.$loading('提交中')
       api.advise.submit(Type, HouseID, Content, Images)
       .then(({res, index}) => {
+        window.$close(index)
         if (res.data.IsSuccess) {
-          let index = window.$alert({
+          window.$alert({
             title: '提示',
             content: '提交成功！',
             yes () {
-              window.$close(index)
+              // window.$close(index)
               // wx.closeWindow()
+              window.$closeAll()
               _self.$router.push({
                 name: 'adviseuser',
                 params: {
@@ -204,6 +207,7 @@ export default {
         }
       })
       .catch(err => {
+        window.$close(index)
         console.log(err)
       })
     }

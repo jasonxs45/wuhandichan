@@ -62,6 +62,13 @@ let api = {
       redirectUrl
     })
   },
+  fetch (opt) {
+    Object.assign(opt, { openid })
+    return axios.post(
+      BASE_URL,
+      qs.stringify(opt)
+    )
+  },
   // 全局查询方法
   globalQuery (opt) {
     Object.assign(opt, { openid })

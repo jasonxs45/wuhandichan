@@ -341,8 +341,8 @@ export default {
       })
     },
     previewImg (cur, groups) {
-      let current = window.location.origin + cur
-      let urls = groups.map(item => window.location.origin + item)
+      let current = cur.includes(window.location.origin) ? cur : window.location.origin + cur
+      let urls = groups.map(item => item.includes(window.location.origin) ? item : window.location.origin + item)
       wxConf.previewImg({
         current,
         urls
@@ -352,12 +352,16 @@ export default {
       this.uploadImgs.push(res)
     },
     back () {
-      this.$router.replace({
-        name: 'repairengineer',
-        params: {
-          state: 'treating'
-        }
-      })
+      try {
+        this.$router.back()
+      } catch (err) {
+        this.$router.replace({
+          name: 'repairengineer',
+          params: {
+            state: 'treating'
+          }
+        })
+      }
     },
     // 完成总单
     finishOrder () {

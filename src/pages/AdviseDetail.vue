@@ -174,9 +174,10 @@ export default {
     },
     previewImg (current) {
       let _self = this
+      let urls = _self.imgs.map(item => item.includes(window.location.origin) ? item : window.location.origin + item)
       wxConf.previewImg({
         current,
-        urls: _self.imgs
+        urls
       })
     },
     back () {
