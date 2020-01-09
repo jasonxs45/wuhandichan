@@ -38,7 +38,11 @@ export default {
     filterShow: {
       type: Boolean,
       default: true
-    }
+    },
+    initBuilding: String,
+    initUnit: String,
+    initHouseno: String,
+    initName: String
   },
   data () {
     return {
@@ -53,6 +57,12 @@ export default {
     filterShow (newVal, oldVal) {
       this.showed = newVal
     }
+  },
+  created () {
+    this.building = this.initBuilding
+    this.unit = this.initUnit
+    this.houseno = this.initHouseno
+    this.name = this.initName
   },
   methods: {
     show () {

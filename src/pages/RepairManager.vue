@@ -20,6 +20,12 @@
           <p class="text">{{item.text}}</p>
         </router-link>
       </flexbox-item>
+      <div class='filters'>
+        当前：<span v-if='building'>{{building}}栋;</span>
+        <span v-if='unit'>{{unit}}单元;</span>
+        <span v-if='houseno'>{{houseno}}号;</span>
+        <span v-if='name'>{{name}}</span>
+      </div>
     </flexbox>
     <div class="content">
       <div v-if="!lists[currentIndex].length" class="no-data">
@@ -74,8 +80,8 @@
         @click="more"
       />
     </div>
-    <button :hidden='showFilter' class='filter-btn' @click="openFilter">筛选</button>
-    <filter-box :filterShow="showFilter" @hide="hideFilter" @confirm="confirm"></filter-box>
+    <button :hidden='showFilter' class='filter-btn' @click="openFilter">打开<br />筛选</button>
+    <filter-box :filterShow="showFilter" :initBuilding='building' :initUnit='unit' :initHouseno='houseno' :initName='name' @hide="hideFilter" @confirm="confirm"></filter-box>
   </div>
 </template>
 <script>
@@ -161,9 +167,27 @@ export default {
     }
   },
   created () {
+    if (sessionStorage.building) {
+      this.building = sessionStorage.building
+    }
+    if (sessionStorage.unit) {
+      this.unit = sessionStorage.unit
+    }
+    if (sessionStorage.houseno) {
+      this.houseno = sessionStorage.houseno
+    }
+    if (sessionStorage.name) {
+      this.name = sessionStorage.name
+    }
     this.stateType = this.$route.params.state
     this.stateChangeHandler()
     this.totalQuery()
+  },
+  destroyed () {
+    // sessionStorage.removeItem('building')
+    // sessionStorage.removeItem('unit')
+    // sessionStorage.removeItem('houseno')
+    // sessionStorage.removeItem('name')
   },
   methods: {
     openFilter () {
@@ -179,6 +203,10 @@ export default {
       this.houseno = houseno
       this.name = name
       this.totalQuery()
+      sessionStorage.building = this.building
+      sessionStorage.unit = this.unit
+      sessionStorage.houseno = this.houseno
+      sessionStorage.name = this.name
     },
     totalQuery () {
       const { myrole: role, searchkey, building, unit, houseno, name } = this
@@ -359,6 +387,14 @@ export default {
          }
        }
      }
+     .filters{
+       position: absolute;
+       width: 100%;
+       top:100%;
+       background: rgba(255,255,255,.8);
+       padding: 5px p2r(30);
+       color: $primary-color;
+     }
    }
    .content{
      width: 100%;
@@ -452,7 +488,7 @@ export default {
     outline:none;
     color: #fff;
     border-radius: 50%;
-    line-height: p2r(90);
+    line-height: 1.1;
     box-shadow: 0 0 20px 0 rgba(0,0,0,.3);
     font-size: 12px;
     font-weight: 500;
