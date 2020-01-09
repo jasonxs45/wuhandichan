@@ -1,5 +1,12 @@
 <template>
   <div class="repair-user repair-manager">
+    <!-- <div class='top-bar'>
+      <div class='search-bar'>
+        <input class='search-input' placeholder='请输入房号或姓名' v-model='searchkey' type="search" />
+        <button class='search-btn'><Icon name='search' /></button>
+      </div>
+      <button class='filter-btn' @click="openFilter">筛选</button>
+    </div> -->
     <flexbox class="links">
       <flexbox-item
         v-for="(item, index) in navs"
@@ -15,14 +22,13 @@
       </flexbox-item>
     </flexbox>
     <div class="content">
-      <!-- <div @click="openFilter">测试</div> -->
-      <div v-if="(user[stateType].orders && user[stateType].orders.length < 1)|| !user[stateType].orders" class="no-data">
+      <div v-if="!lists[currentIndex].length" class="no-data">
         <img src="static/images/repairnodata.png" alt="" />
         <p class="text">暂无数据</p>
       </div>
       <div
-        v-for="(item, index) in user[stateType].orders"
-        :key="'untreatedorder-'+index"
+        v-for="(item, index) in lists[currentIndex]"
+        :key="'order-'+index"
         class="repair-card"
         @click="toDetail(item.ID)"
       >
@@ -63,11 +69,12 @@
         </template>
       </div>
       <Getmore
-        v-if="user[stateType].orders && user[stateType].orders.length > 0"
-        :canClick="!user[stateType].lastPage"
-        @click="list"
+        v-if="lists[currentIndex].length"
+        :canClick="!finishes[currentIndex]"
+        @click="more"
       />
     </div>
+    <button :hidden='showFilter' class='filter-btn' @click="openFilter">筛选</button>
     <filter-box :filterShow="showFilter" @hide="hideFilter" @confirm="confirm"></filter-box>
   </div>
 </template>
@@ -75,6 +82,7 @@
 import {
   Flexbox,
   FlexboxItem,
+  Icon,
   Split,
   Star,
   Getmore,
@@ -83,7 +91,7 @@ import {
 import {
   formatDate
 } from 'common/utils/date'
-// import api from 'common/api'
+import api from 'common/api'
 let navs = [
   {
     path: 'untreated',
@@ -111,6 +119,7 @@ export default {
   components: {
     Flexbox,
     FlexboxItem,
+    Icon,
     Split,
     Star,
     Getmore,
@@ -121,7 +130,17 @@ export default {
       navs,
       stateType: '',
       role: 'manager',
+      myrole: '客服',
       showFilter: false,
+      currentIndex: 0,
+      lists: [],
+      pageIndexes: [],
+      finishes: [],
+      searchkey: '',
+      building: '',
+      unit: '',
+      houseno: '',
+      name: '',
       managerInfo: {}
     }
   },
@@ -144,14 +163,9 @@ export default {
   created () {
     this.stateType = this.$route.params.state
     this.stateChangeHandler()
-  },
-  destroyed () {
-    this.reset()
+    this.totalQuery()
   },
   methods: {
-    reset () {
-      this.$store.dispatch('repair/destroyed', this.role)
-    },
     openFilter () {
       this.showFilter = true
     },
@@ -159,36 +173,99 @@ export default {
       this.showFilter = val
     },
     confirm (val) {
-      this.listbyFilter(val)
+      const { building, unit, houseno, name } = val
+      this.building = building
+      this.unit = unit
+      this.houseno = houseno
+      this.name = name
+      this.totalQuery()
     },
-    listbyFilter ({building, unit, houseno, name}) {
-      this.$store.commit('repair/resetPage', {
-        role: this.role,
-        stateType: this.stateType
-      })
-      this.$store.dispatch('repair/filter', {
-        role: this.role,
-        stateType: this.stateType,
-        building,
-        unit,
-        houseno,
-        name,
-        reje: () => {
-          this.$router.push({
-            name: 'bind'
+    totalQuery () {
+      const { myrole: role, searchkey, building, unit, houseno, name } = this
+      let stack = []
+      this.lists = []
+      this.finishes = []
+      this.pageIndexes = []
+      for (let i = 0, len = navs.length; i < len; i++) {
+        this.lists.push([])
+        this.finishes.push(true)
+        this.pageIndexes.push(1)
+        stack.push(Promise.resolve(api.repair.list1({
+          role,
+          state: navs[i].text,
+          searchkey,
+          pageindex: 1,
+          building,
+          unit,
+          houseno,
+          name
+        })))
+      }
+      const index = window.$loading('加载中')
+      Promise.all(stack)
+        .then(res => {
+          window.$close(index)
+          res = res.map(item => item.data)
+          this.lists = res.map(item => {
+            let arr
+            if (item.IsSuccess) {
+              arr = item.Data.repairList
+            } else {
+              arr = []
+            }
+            return arr
           })
-        }
-      })
+          this.finishes = res.map(item => {
+            let res
+            if (item.IsSuccess) {
+              res = item.Data.lastpage
+            } else {
+              res = true
+            }
+            return res
+          })
+        })
+        .catch(err => {
+          window.$close(index)
+          console.log(err)
+        })
     },
-    list ({building, unit, houseno, name}) {
-      this.$store.dispatch('repair/list', {
-        role: this.role,
-        stateType: this.stateType,
-        building,
-        unit,
-        houseno,
-        name
-      })
+    more () {
+      const { searchkey, myrole: role, currentIndex, pageIndexes, finishes, building, unit, houseno, name } = this
+      const state = navs[currentIndex].text
+      const pageindex = pageIndexes[currentIndex] + 1
+      const finished = finishes[currentIndex]
+      console.log(currentIndex)
+      if (!finished) {
+        const index = window.$loading('加载中')
+        api.repair.list1({
+            role,
+            state,
+            searchkey,
+            pageindex,
+            building,
+            unit,
+            houseno,
+            name
+          })
+          .then(res => {
+            window.$close(index)
+            if (res.data.IsSuccess) {
+              this.lists[currentIndex] = this.lists[currentIndex].concat(res.data.Data.repairList)
+              this.finishes[currentIndex] = res.data.Data.lastpage
+              this.pageIndexes[currentIndex] = pageindex
+              this.lists = this.lists.slice()
+              this.finishes = this.finishes.slice()
+              this.pageIndexes = this.pageIndexes.slice()
+            } else {
+              window.$alert(res.data.Message)
+            }
+          })
+          .catch(err => {
+            window.$close(index)
+            console.log(err)
+          })
+      }
     },
     stateChangeHandler () {
       if (this.navs.every(item => item.path !== this.stateType)) {
@@ -197,10 +274,7 @@ export default {
         })
         return
       }
-      // this.list(this.stateType)
-      if (this.user[this.stateType].page < 1) {
-        this.list(this.stateType)
-      }
+      this.currentIndex = navs.findIndex(item => item.path === this.stateType) === -1 ? 0 : navs.findIndex(item => item.path === this.stateType)
     },
     toDetail (id) {
       this.$router.push({
@@ -219,6 +293,30 @@ export default {
  .repair-user{
    width: 100vw;
    height: 100vh;
+   .top-bar{
+     display: flex;
+     align-items: center;
+     width: 100%;
+     height: p2r(90);
+     .search-bar{
+       flex: 1;
+       display: flex;
+       border: 1px solid #ddd;
+       height: p2r(70);
+       margin-left: p2r(15);
+       border-radius: 30px;
+       line-height: p2r(70);
+       padding:0 p2r(15);
+       overflow: hidden;
+        .search-input {
+          display: block;
+          flex: 1;
+          border:none;
+          outline: none;
+          margin: 0 p2r(15);
+        }
+     }
+   }
    .links{
       height:p2r(80);
       box-shadow: $box-shadow;
@@ -342,5 +440,22 @@ export default {
       }
      }
    }
+  .filter-btn{
+    width: p2r(90);
+    height: p2r(90);
+    position: fixed;
+    right: 10px;
+    bottom: p2r(100);
+    z-index: 99;
+    background: $primary-color;
+    border:none;
+    outline:none;
+    color: #fff;
+    border-radius: 50%;
+    line-height: p2r(90);
+    box-shadow: 0 0 20px 0 rgba(0,0,0,.3);
+    font-size: 12px;
+    font-weight: 500;
+  }
  }
 </style>

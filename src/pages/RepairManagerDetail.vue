@@ -536,6 +536,7 @@ export default {
     },
     back () {
       const { lastPath } = this.$router
+      console.log(lastPath)
       if (lastPath.replace('/', '') === '') {
         this.$router.replace({
           name: 'repairmanager',

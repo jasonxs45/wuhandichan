@@ -34,6 +34,25 @@ const STATE = {
   }
 }
 let repair = {
+  list1 ({ role, state, searchkey, pageindex = 1, pagesize = 10, building = '', unit = '', houseno = '', name = '' } = {}) {
+    let opt = {
+      Act: 'RepairGetList',
+      Data: JSON.stringify(
+        {
+          role,
+          state,
+          searchkey,
+          pagesize,
+          pageindex,
+          building,
+          unit,
+          houseno,
+          name
+        }
+      )
+    }
+    return api.fetch(opt)
+  },
   list (role, state, pageindex = 1, pagesize = 10, building = '', unit = '', houseno = '', name = '') {
     let opt = {
       Act: 'RepairGetList',
