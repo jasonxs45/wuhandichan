@@ -297,14 +297,15 @@ export default {
 @import "~common/scss/variables.scss";
 @import "~common/scss/mixins.scss";
 .filters{
-    position: fixed;
-    width: 100%;
-    top:0;
-    left: 0;
-    background: rgba(255,255,255,.8);
-    padding: p2r(20) p2r(30);
-    color: $primary-color;
-  }
+  z-index: 2;
+  position: fixed;
+  width: 100%;
+  top:0;
+  left: 0;
+  background: rgba(255,255,255,.8);
+  padding: p2r(20) p2r(30);
+  color: $primary-color;
+}
  .repair-engineer-manager{
    width: 100vw;
    height: 100vh;

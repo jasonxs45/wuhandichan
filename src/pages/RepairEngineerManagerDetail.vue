@@ -25,7 +25,7 @@
             :group="imgs"
             :key="'upimg-'+index"
           >
-            <Fitimg :src="item" @on-click="previewImg(item)"/>
+            <Fitimg :src="item" @on-click="previewImg(item, imgs)"/>
           </img-cell>
         </img-row>
         <template v-if="repair.Name">
