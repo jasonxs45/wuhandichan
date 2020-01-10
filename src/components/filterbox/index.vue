@@ -24,7 +24,8 @@
         </div>
       </div>
       <div class="bottom">
-        <div class="btn cancel" @click="hide">取消</div>
+        <div class="btn cancel" @click="hide">关闭</div>
+        <div class="btn reset" @click="reset">重置</div>
         <div class="btn confirm" @click="confirm">确定</div>
       </div>
     </div>
@@ -73,6 +74,19 @@ export default {
       this.$emit('hide', this.showed)
     },
     confirm () {
+      this.hide()
+      this.$emit('confirm', {
+        building: this.building,
+        unit: this.unit,
+        houseno: this.houseno,
+        name: this.name
+      })
+    },
+    reset () {
+      this.building = ''
+      this.unit = ''
+      this.houseno = ''
+      this.name = ''
       this.hide()
       this.$emit('confirm', {
         building: this.building,
@@ -144,10 +158,13 @@ export default {
       font-size: 0;
       .btn{
         display: inline-block;
-        width: 50%;
+        width: 33.33%;
         font-size: p2r(28);
         line-height: p2r(100);
         text-align: center;
+        &.cancel{
+          background: #ccc !important;
+        }
         &.confirm{
           background: $primary-color;
           color: #fff;

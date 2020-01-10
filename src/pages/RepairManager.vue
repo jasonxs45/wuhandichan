@@ -20,11 +20,9 @@
           <p class="text">{{item.text}}</p>
         </router-link>
       </flexbox-item>
-      <div class='filters'>
-        当前：<span v-if='building'>{{building}}栋;</span>
-        <span v-if='unit'>{{unit}}单元;</span>
-        <span v-if='houseno'>{{houseno}}号;</span>
-        <span v-if='name'>{{name}}</span>
+      <div :hidden='!(building||unit||houseno||name)' class='filters'>
+        当前
+        <span v-if='building'>楼栋:{{building}};</span><span v-if='unit'>单元:{{unit}};</span><span v-if='houseno'>房号:{{houseno}};</span><span v-if='name'>姓名:{{name}}</span>
       </div>
     </flexbox>
     <div class="content">
