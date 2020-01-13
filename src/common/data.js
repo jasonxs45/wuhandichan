@@ -31,11 +31,11 @@ let entries = [
     icon: 'repair',
     link: '/repairsubmit'
   },
-  {
-    name: '业主报修记录',
-    icon: 'repair',
-    link: '/repairuser/untreated'
-  },
+  // {
+  //   name: '业主报修记录',
+  //   icon: 'repair',
+  //   link: '/repairuser/untreated'
+  // },
   {
     name: '新闻中心',
     icon: 'news',

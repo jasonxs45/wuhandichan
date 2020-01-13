@@ -34,6 +34,17 @@ const STATE = {
   }
 }
 let repair = {
+  counts ({ role }) {
+    let opt = {
+      Act: 'RepairGetStatistics',
+      Data: JSON.stringify(
+        {
+          role
+        }
+      )
+    }
+    return api.fetch(opt)
+  },
   list1 ({ role, state, searchkey, pageindex = 1, pagesize = 10, building = '', unit = '', houseno = '', name = '' } = {}) {
     let opt = {
       Act: 'RepairGetList',

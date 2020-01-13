@@ -1,7 +1,7 @@
 <template>
   <div class="repair-user repair-engineer-manager">
     <!-- <userinfo type-class="rectangle"></userinfo> -->
-    <!-- <flexbox class="links">
+    <flexbox class="links">
       <flexbox-item
         v-for="(item, index) in navs"
         :key="item.path+index"
@@ -11,14 +11,14 @@
           tag="div"
           class="link"
         >
-          <p class="text">{{item.text}}</p>
+          <p class="text">{{item.text}}<span class='badge'>{{counts[index]}}</span></p>
         </router-link>
       </flexbox-item>
-    </flexbox> -->
-    <div :hidden='!(building||unit||houseno||name)' class='filters'>
-      当前
-      <span v-if='building'>楼栋:{{building}};</span><span v-if='unit'>单元:{{unit}};</span><span v-if='houseno'>房号:{{houseno}};</span><span v-if='name'>姓名:{{name}}</span>
-    </div>
+      <div :hidden='!(building||unit||houseno||name)' class='filters'>
+        当前
+        <span v-if='building'>楼栋:{{building}};</span><span v-if='unit'>单元:{{unit}};</span><span v-if='houseno'>房号:{{houseno}};</span><span v-if='name'>姓名:{{name}}</span>
+      </div>
+    </flexbox>
     <div class="content">
       <div v-if="!lists[currentIndex].length" class="no-data">
         <img src="static/images/repairnodata.png" alt="" />
@@ -118,6 +118,7 @@ export default {
       lists: [],
       pageIndexes: [],
       finishes: [],
+      counts: [],
       searchkey: '',
       building: '',
       unit: '',
@@ -221,6 +222,15 @@ export default {
             }
             return res
           })
+          this.counts = res.map(item => {
+            let res
+            if (item.IsSuccess) {
+              res = item.Data.count
+            } else {
+              res = 0
+            }
+            return res
+          })
         })
         .catch(err => {
           window.$close(index)
@@ -296,16 +306,6 @@ export default {
 <style lang="scss" scoped>
 @import "~common/scss/variables.scss";
 @import "~common/scss/mixins.scss";
-.filters{
-  z-index: 2;
-  position: fixed;
-  width: 100%;
-  top:0;
-  left: 0;
-  background: rgba(255,255,255,.8);
-  padding: p2r(20) p2r(30);
-  color: $primary-color;
-}
  .repair-engineer-manager{
    width: 100vw;
    height: 100vh;
@@ -319,6 +319,18 @@ export default {
        height: 100%;
        display: table;
        position: relative;
+       .badge{
+         position: absolute;
+         display: inline-block;
+         font-size: p2r(18);
+         background: $error-color;
+         color: #fff;
+         padding:2px 5px;
+         border-radius: 8px;
+         right: 0;
+         top: p2r(10);
+         opacity: .9;
+       }
        &:after{
         content: '';
         display: block;
@@ -350,6 +362,14 @@ export default {
            font-weight: normal;
          }
        }
+     }
+    .filters{
+       position: absolute;
+       width: 100%;
+       top:100%;
+       background: rgba(255,255,255,.8);
+       padding: 5px p2r(30);
+       color: $primary-color;
      }
      & + .content{
        height: calc(100% - 1.7rem);

@@ -85,6 +85,7 @@ export default {
     return {
       entries: entries.filter(item => {
         return item.name !== '个人中心' &&
+               item.name !== '业主报修记录' &&
                item.name !== '我的活动' &&
                item.name !== '社区活动' &&
                item.name !== '武汉地产家书' &&

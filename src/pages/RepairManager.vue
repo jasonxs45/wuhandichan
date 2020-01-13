@@ -17,7 +17,7 @@
           tag="div"
           class="link"
         >
-          <p class="text">{{item.text}}</p>
+          <p class="text">{{item.text}}<span class='badge'>{{counts[index]}}</span></p>
         </router-link>
       </flexbox-item>
       <div :hidden='!(building||unit||houseno||name)' class='filters'>
@@ -140,6 +140,7 @@ export default {
       lists: [],
       pageIndexes: [],
       finishes: [],
+      counts: [],
       searchkey: '',
       building: '',
       unit: '',
@@ -180,6 +181,7 @@ export default {
     this.stateType = this.$route.params.state
     this.stateChangeHandler()
     this.totalQuery()
+    // this.getCounts()
   },
   destroyed () {
     // sessionStorage.removeItem('building')
@@ -247,6 +249,15 @@ export default {
               res = item.Data.lastpage
             } else {
               res = true
+            }
+            return res
+          })
+          this.counts = res.map(item => {
+            let res
+            if (item.IsSuccess) {
+              res = item.Data.count
+            } else {
+              res = 0
             }
             return res
           })
@@ -353,6 +364,18 @@ export default {
        height: 100%;
        display: table;
        position: relative;
+       .badge{
+         position: absolute;
+         display: inline-block;
+         font-size: p2r(18);
+         background: $error-color;
+         color: #fff;
+         padding:2px 5px;
+         border-radius: 8px;
+         right: 0;
+         top: p2r(10);
+         opacity: .9;
+       }
        &:after{
         content: '';
         display: block;
