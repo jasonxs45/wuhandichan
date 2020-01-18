@@ -45,7 +45,7 @@ let repair = {
     }
     return api.fetch(opt)
   },
-  list1 ({ role, state, searchkey, pageindex = 1, pagesize = 10, building = '', unit = '', houseno = '', name = '' } = {}) {
+  list1 ({ role, state, searchkey = '', projectid = '', stageid = '', startdate = '', enddate = '', pageindex = 1, pagesize = 10, building = '', unit = '', houseno = '', name = '' } = {}) {
     let opt = {
       Act: 'RepairGetList',
       Data: JSON.stringify(
@@ -53,6 +53,10 @@ let repair = {
           role,
           state,
           searchkey,
+          projectid,
+          stageid,
+          startdate,
+          enddate,
           pagesize,
           pageindex,
           building,
