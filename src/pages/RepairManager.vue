@@ -20,9 +20,16 @@
           <p class="text">{{item.text}}<span class='badge'>{{counts[index]}}</span></p>
         </router-link>
       </flexbox-item>
-      <div :hidden='!(building||unit||houseno||name)' class='filters'>
-        当前
-        <span v-if='building'>楼栋:{{building}};</span><span v-if='unit'>单元:{{unit}};</span><span v-if='houseno'>房号:{{houseno}};</span><span v-if='name'>姓名:{{name}}</span>
+      <div :hidden='!showFilt' class='filters'>
+        <span v-if='project && project.Name !== "全部"'>{{project.Name}};</span>
+        <span v-if='state && state.Name !== "全部"'>{{state.Name}};</span>
+        <span v-if='building'>楼栋:{{building}};</span>
+        <span v-if='building'>楼栋:{{building}};</span>
+        <span v-if='unit'>单元:{{unit}};</span>
+        <span v-if='houseno'>房号:{{houseno}};</span>
+        <span v-if='name'>姓名:{{name}};</span>
+        <span v-if='start'>开始:{{start}};</span>
+        <span v-if='end'>结束:{{end}};</span>
       </div>
     </flexbox>
     <div class="content">
@@ -79,7 +86,20 @@
       />
     </div>
     <button :hidden='showFilter' class='filter-btn' @click="openFilter">打开<br />筛选</button>
-    <filter-box :filterShow="showFilter" :initBuilding='building' :initUnit='unit' :initHouseno='houseno' :initName='name' @hide="hideFilter" @confirm="confirm"></filter-box>
+    <filter-box
+      :filterShow="showFilter"
+      :initProject='project'
+      :initState='state'
+      :initBuilding='building'
+      :initUnit='unit'
+      :initHouseno='houseno'
+      :initName='name'
+      :initStart='start'
+      :initEnd='end'
+      @hide="hideFilter"
+      @confirm="confirm"
+    >
+    </filter-box>
   </div>
 </template>
 <script>
@@ -146,12 +166,23 @@ export default {
       unit: '',
       houseno: '',
       name: '',
-      managerInfo: {}
+      managerInfo: {},
+      project: '',
+      state: '',
+      start: '',
+      end: ''
     }
   },
   computed: {
-    user () {
-      return this.$store.getters['repair/manager']
+    showFilt () {
+      return this.building ||
+             this.unit ||
+             this.houseno ||
+             this.name ||
+             this.start ||
+             this.end ||
+             (this.project && this.project.Name !== '全部') ||
+             (this.state && this.state.Name !== '全部')
     }
   },
   watch: {
@@ -178,16 +209,21 @@ export default {
     if (sessionStorage.name) {
       this.name = sessionStorage.name
     }
+    if (sessionStorage.project) {
+      this.project = JSON.parse(sessionStorage.project)
+    }
+    if (sessionStorage.state) {
+      this.state = JSON.parse(sessionStorage.state)
+    }
+    if (sessionStorage.start) {
+      this.start = sessionStorage.start
+    }
+    if (sessionStorage.end) {
+      this.end = sessionStorage.end
+    }
     this.stateType = this.$route.params.state
     this.stateChangeHandler()
     this.totalQuery()
-    // this.getCounts()
-  },
-  destroyed () {
-    // sessionStorage.removeItem('building')
-    // sessionStorage.removeItem('unit')
-    // sessionStorage.removeItem('houseno')
-    // sessionStorage.removeItem('name')
   },
   methods: {
     openFilter () {
@@ -197,23 +233,44 @@ export default {
       this.showFilter = val
     },
     confirm (val) {
-      const { building, unit, houseno, name } = val
+      const { building, unit, houseno, name, project, state, start, end } = val
       this.building = building
       this.unit = unit
       this.houseno = houseno
       this.name = name
+      this.project = project
+      this.state = state
+      this.start = start
+      this.end = end
       this.totalQuery()
       sessionStorage.building = this.building
       sessionStorage.unit = this.unit
       sessionStorage.houseno = this.houseno
       sessionStorage.name = this.name
+      sessionStorage.start = this.start
+      sessionStorage.end = this.end
+      sessionStorage.project = JSON.stringify(this.project)
+      sessionStorage.state = JSON.stringify(this.state)
     },
     totalQuery () {
-      const { myrole: role, searchkey, building, unit, houseno, name } = this
+      const {
+        myrole: role,
+        searchkey,
+        building,
+        unit,
+        houseno,
+        name,
+        project,
+        state,
+        start: startdate,
+        end: enddate
+      } = this
       let stack = []
       this.lists = []
       this.finishes = []
       this.pageIndexes = []
+      const projectid = project ? project.ID : ''
+      const stageid = state ? state.ID : ''
       for (let i = 0, len = navs.length; i < len; i++) {
         this.lists.push([])
         this.finishes.push(true)
@@ -226,7 +283,11 @@ export default {
           building,
           unit,
           houseno,
-          name
+          name,
+          projectid,
+          stageid,
+          startdate,
+          enddate
         })))
       }
       const index = window.$loading('加载中')
@@ -268,10 +329,26 @@ export default {
         })
     },
     more () {
-      const { searchkey, myrole: role, currentIndex, pageIndexes, finishes, building, unit, houseno, name } = this
+      const {
+        searchkey,
+        myrole: role,
+        currentIndex,
+        pageIndexes,
+        finishes,
+        building,
+        unit,
+        houseno,
+        name,
+        project,
+        state: stage,
+        start: startdate,
+        end: enddate
+      } = this
       const state = navs[currentIndex].text
       const pageindex = pageIndexes[currentIndex] + 1
       const finished = finishes[currentIndex]
+      const projectid = project ? project.ID : ''
+      const stageid = stage ? stage.ID : ''
       console.log(currentIndex)
       if (!finished) {
         const index = window.$loading('加载中')
@@ -283,7 +360,11 @@ export default {
             building,
             unit,
             houseno,
-            name
+            name,
+            projectid,
+            stageid,
+            startdate,
+            enddate
           })
           .then(res => {
             window.$close(index)
@@ -415,6 +496,9 @@ export default {
        background: rgba(255,255,255,.8);
        padding: 5px p2r(30);
        color: $primary-color;
+       white-space: nowrap;
+       text-overflow: ellipsis;
+       overflow: hidden;
      }
    }
    .content{

@@ -189,6 +189,10 @@ export default {
           const { IsSuccess, Message, Data } = res.data
           if (IsSuccess) {
             this.projects = Data
+            this.projects.unshift({
+              Name: '全部',
+              ID: ''
+            })
             this.projectIndex = this.projects.findIndex(item => item.ID === this.project.ID)
             this.projectIndex = this.projectIndex === -1 ? 0 : this.projectIndex
           } else {
@@ -213,6 +217,10 @@ export default {
           const { IsSuccess, Message, Data } = res.data
           if (IsSuccess) {
             this.states = Data
+            this.states.unshift({
+              Name: '全部',
+              ID: ''
+            })
             this.stateIndex = this.states.findIndex(item => item.ID === this.state.ID)
             this.stateIndex = this.stateIndex === -1 ? 0 : this.stateIndex
           } else {
@@ -285,9 +293,9 @@ export default {
     this.houseno = this.initHouseno
     this.name = this.initName
     this.projects = this.initProjects
-    this.project = this.initProject
+    this.project = this.initProject || ''
     this.states = this.initStates
-    this.state = this.initState
+    this.state = this.initState || ''
     this.start = this.initStart === undefined ? '' : this.initStart
     this.end = this.initEnd === undefined ? '' : this.initEnd
   },

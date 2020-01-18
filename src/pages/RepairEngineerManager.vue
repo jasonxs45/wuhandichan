@@ -15,8 +15,8 @@
         </router-link>
       </flexbox-item>
       <div :hidden='!showFilt' class='filters'>
-        <span v-if='project'>{{project.Name}};</span>
-        <span v-if='state'>{{state.Name}};</span>
+        <span v-if='project && project.Name !== "全部"'>{{project.Name}};</span>
+        <span v-if='state && state.Name !== "全部"'>{{state.Name}};</span>
         <span v-if='building'>楼栋:{{building}};</span>
         <span v-if='building'>楼栋:{{building}};</span>
         <span v-if='unit'>单元:{{unit}};</span>
@@ -152,7 +152,14 @@ export default {
   },
   computed: {
     showFilt () {
-      return this.building || this.unit || this.houseno || this.name || this.start || this.end || this.project || this.state
+      return this.building ||
+             this.unit ||
+             this.houseno ||
+             this.name ||
+             this.start ||
+             this.end ||
+             (this.project && this.project.Name !== '全部') ||
+             (this.state && this.state.Name !== '全部')
     }
   },
   watch: {
@@ -440,7 +447,7 @@ export default {
        width: 100%;
        top:100%;
        background: rgba(255,255,255,.8);
-       padding: 5px p2r(10);
+       padding: 5px p2r(30);
        color: $primary-color;
        white-space: nowrap;
        text-overflow: ellipsis;
