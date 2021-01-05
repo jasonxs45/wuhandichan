@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "area-data": "^5.0.6",
-    "axios": "^0.18.0",
+    "axios": "^0.21.1",
     "echarts": "^4.0.4",
     "mta-h5-analysis": "^2.0.9",
     "node-sass": "^4.7.2",
